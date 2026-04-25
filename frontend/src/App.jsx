@@ -6,6 +6,7 @@ import GroupPage from './pages/GroupPage'
 import GroupDetailPage from './pages/GroupDetailPage'
 import TransactionPage from './pages/TransactionPage'
 import ReportPage from './pages/ReportPage'
+import GroupNewPage from './pages/GroupNewPage'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
       <Route path="/group/:id" element={<GroupDetailPage />} />
       <Route path="/transaction" element={<TransactionPage />} />
       <Route path="/report" element={<ReportPage />} />
+      <Route path="/group/new" element={<GroupNewPage />} />
     </Routes>
   )
 }

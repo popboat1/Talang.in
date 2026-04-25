@@ -1,18 +1,46 @@
 import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { register } from '../services/authService'
 
 const RegisterPage = () => {
   const navigate = useNavigate()
+  const [form, setForm] = useState({ full_name: '', email: '', password: '', confirmPassword: '' })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  const handleRegister = async () => {
+    if (!form.full_name || !form.email || !form.password || !form.confirmPassword) {
+      setError('Semua field wajib diisi')
+      return
+    }
+    if (form.password !== form.confirmPassword) {
+      setError('Password dan konfirmasi password tidak sama')
+      return
+    }
+    if (form.password.length < 6) {
+      setError('Password minimal 6 karakter')
+      return
+    }
+    setLoading(true)
+    setError('')
+    try {
+      await register(form.full_name, form.email, form.password)
+      setSuccess('Registrasi berhasil! Silakan cek email untuk verifikasi, lalu masuk.')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Registrasi gagal')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="flex h-screen">
       {/* LEFT SIDE */}
       <div
         className="flex flex-1 flex-col items-center justify-center p-8"
-        style={{
-          background: "linear-gradient(160deg, #1a4f8a 0%, #0e2d5e 60%, #071a35 100%)",
-        }}
+        style={{ background: "linear-gradient(160deg, #1a4f8a 0%, #0e2d5e 60%, #071a35 100%)" }}
       >
-        {/* Logo */}
         <div
           className="flex items-center justify-center w-14 h-14 rounded-full mb-6"
           style={{ background: "rgba(255,255,255,0.08)", border: "0.5px solid rgba(255,255,255,0.15)" }}
@@ -23,27 +51,17 @@ const RegisterPage = () => {
           </svg>
         </div>
 
-        <h1 className="text-2xl font-medium mb-2" style={{ color: "#e8f0fb" }}>
-          Talang.in
-        </h1>
+        <h1 className="text-2xl font-medium mb-2" style={{ color: "#e8f0fb" }}>Talang.in</h1>
         <p className="text-sm text-center max-w-[220px] leading-relaxed" style={{ color: "rgba(180,200,230,0.65)" }}>
           Kelola keuangan grup dengan lebih sederhana dan transparan
         </p>
 
-        {/* Mini cards */}
         <div className="flex gap-3 mt-8">
           {[
             { label: "Total grup", value: "3 aktif" },
-            { label: "Saldo bersih", value: "Rp 45.000" },
+            { label: "Total pengeluaran", value: "Rp 45.000" },
           ].map((item) => (
-            <div
-              key={item.label}
-              className="px-4 py-3 rounded-lg"
-              style={{
-                background: "rgba(255,255,255,0.06)",
-                border: "0.5px solid rgba(255,255,255,0.1)",
-              }}
-            >
+            <div key={item.label} className="px-4 py-3 rounded-lg" style={{ background: "rgba(255,255,255,0.06)", border: "0.5px solid rgba(255,255,255,0.1)" }}>
               <p className="text-[10px] mb-1" style={{ color: "rgba(180,200,230,0.5)" }}>{item.label}</p>
               <p className="text-sm font-medium" style={{ color: "#c8daf5" }}>{item.value}</p>
             </div>
@@ -54,7 +72,28 @@ const RegisterPage = () => {
       {/* RIGHT SIDE */}
       <div className="flex flex-1 flex-col justify-center px-10 bg-white">
         <h2 className="text-xl font-medium mb-1 text-gray-900">Buat akun baru</h2>
-        <p className="text-sm text-gray-400 mb-8">Bergabung dan mulai kelola keuangan grupmu!</p>
+        <p className="text-sm text-gray-400 mb-6">Bergabung dan mulai kelola keuangan grupmu!</p>
+
+        {/* Error message */}
+        {error && (
+          <div className="mb-4 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
+            <p className="text-xs text-red-500">{error}</p>
+          </div>
+        )}
+
+        {/* Success message */}
+        {success && (
+          <div className="mb-4 px-3 py-2 rounded-lg bg-green-50 border border-green-200">
+            <p className="text-xs text-green-600">{success}</p>
+            <button
+              onClick={() => navigate('/')}
+              className="text-xs font-semibold mt-1 underline"
+              style={{ color: "#1a4f8a" }}
+            >
+              Ke halaman login →
+            </button>
+          </div>
+        )}
 
         {/* Nama Lengkap */}
         <div className="mb-4">
@@ -62,6 +101,8 @@ const RegisterPage = () => {
           <input
             type="text"
             placeholder="Nama lengkapmu"
+            value={form.full_name}
+            onChange={(e) => setForm({ ...form, full_name: e.target.value })}
             className="w-full h-9 px-3 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-800 outline-none focus:border-blue-400"
           />
         </div>
@@ -72,6 +113,8 @@ const RegisterPage = () => {
           <input
             type="email"
             placeholder="nama@email.com"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
             className="w-full h-9 px-3 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-800 outline-none focus:border-blue-400"
           />
         </div>
@@ -82,6 +125,8 @@ const RegisterPage = () => {
           <input
             type="password"
             placeholder="••••••••"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
             className="w-full h-9 px-3 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-800 outline-none focus:border-blue-400"
           />
         </div>
@@ -92,16 +137,20 @@ const RegisterPage = () => {
           <input
             type="password"
             placeholder="••••••••"
+            value={form.confirmPassword}
+            onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
             className="w-full h-9 px-3 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-800 outline-none focus:border-blue-400"
           />
         </div>
 
         {/* Tombol Daftar */}
         <button
-          className="w-full h-10 rounded-lg text-sm font-medium mb-4"
+          onClick={handleRegister}
+          disabled={loading}
+          className="w-full h-10 rounded-lg text-sm font-medium mb-4 disabled:opacity-60"
           style={{ background: "#1a4f8a", color: "#e8f0fb" }}
         >
-          Daftar
+          {loading ? 'Memproses...' : 'Daftar'}
         </button>
 
         {/* Divider */}

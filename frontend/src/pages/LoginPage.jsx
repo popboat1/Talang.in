@@ -1,18 +1,37 @@
 import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { login } from '../services/authService'
 
 const LoginPage = () => {
   const navigate = useNavigate()
+  const [form, setForm] = useState({ email: '', password: '' })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleLogin = async () => {
+    if (!form.email || !form.password) {
+      setError('Email dan password wajib diisi')
+      return
+    }
+    setLoading(true)
+    setError('')
+    try {
+      await login(form.email, form.password)
+      navigate('/dashboard')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Login gagal')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="flex h-screen">
       {/* LEFT SIDE */}
       <div
         className="flex flex-1 flex-col items-center justify-center p-8"
-        style={{
-          background: "linear-gradient(160deg, #0c3460 0%, #071a35 60%, #030d1a 100%)",
-        }}
+        style={{ background: "linear-gradient(160deg, #0c3460 0%, #071a35 60%, #030d1a 100%)" }}
       >
-        {/* Logo */}
         <div
           className="flex items-center justify-center w-14 h-14 rounded-full mb-6"
           style={{ background: "rgba(255,255,255,0.08)", border: "0.5px solid rgba(255,255,255,0.15)" }}
@@ -23,27 +42,17 @@ const LoginPage = () => {
           </svg>
         </div>
 
-        <h1 className="text-2xl font-medium mb-2" style={{ color: "#e8f0fb" }}>
-          Talang.in
-        </h1>
+        <h1 className="text-2xl font-medium mb-2" style={{ color: "#e8f0fb" }}>Talang.in</h1>
         <p className="text-sm text-center max-w-[220px] leading-relaxed" style={{ color: "rgba(180,200,230,0.65)" }}>
           Kelola keuangan grup dengan lebih sederhana dan transparan
         </p>
 
-        {/* Mini cards */}
         <div className="flex gap-3 mt-8">
           {[
             { label: "Total grup", value: "3 aktif" },
-            { label: "Saldo bersih", value: "Rp 45.000" },
+            { label: "Total pengeluaran", value: "Rp 45.000" },
           ].map((item) => (
-            <div
-              key={item.label}
-              className="px-4 py-3 rounded-lg"
-              style={{
-                background: "rgba(255,255,255,0.06)",
-                border: "0.5px solid rgba(255,255,255,0.1)",
-              }}
-            >
+            <div key={item.label} className="px-4 py-3 rounded-lg" style={{ background: "rgba(255,255,255,0.06)", border: "0.5px solid rgba(255,255,255,0.1)" }}>
               <p className="text-[10px] mb-1" style={{ color: "rgba(180,200,230,0.5)" }}>{item.label}</p>
               <p className="text-sm font-medium" style={{ color: "#c8daf5" }}>{item.value}</p>
             </div>
@@ -54,7 +63,14 @@ const LoginPage = () => {
       {/* RIGHT SIDE */}
       <div className="flex flex-1 flex-col justify-center px-10 bg-white">
         <h2 className="text-xl font-medium mb-1 text-gray-900">Masuk ke akun</h2>
-        <p className="text-sm text-gray-400 mb-8">Selamat datang kembali!</p>
+        <p className="text-sm text-gray-400 mb-6">Selamat datang kembali!</p>
+
+        {/* Error message */}
+        {error && (
+          <div className="mb-4 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
+            <p className="text-xs text-red-500">{error}</p>
+          </div>
+        )}
 
         {/* Email */}
         <div className="mb-4">
@@ -62,6 +78,8 @@ const LoginPage = () => {
           <input
             type="email"
             placeholder="nama@email.com"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
             className="w-full h-9 px-3 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-800 outline-none focus:border-blue-400"
           />
         </div>
@@ -72,6 +90,8 @@ const LoginPage = () => {
           <input
             type="password"
             placeholder="••••••••"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
             className="w-full h-9 px-3 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-800 outline-none focus:border-blue-400"
           />
         </div>
@@ -82,10 +102,12 @@ const LoginPage = () => {
 
         {/* Tombol Masuk */}
         <button
-          className="w-full h-10 rounded-lg text-sm font-medium mb-4"
+          onClick={handleLogin}
+          disabled={loading}
+          className="w-full h-10 rounded-lg text-sm font-medium mb-4 disabled:opacity-60"
           style={{ background: "#0c3460", color: "#e8f0fb" }}
         >
-          Masuk
+          {loading ? 'Memproses...' : 'Masuk'}
         </button>
 
         {/* Divider */}

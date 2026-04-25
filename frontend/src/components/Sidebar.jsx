@@ -30,10 +30,7 @@ const Sidebar = ({ user }) => {
           <span className="text-sm font-medium" style={{ color: '#c8daf5' }}>Talang.in</span>
         </div>
 
-        <div className="rounded-lg px-3 py-2 mb-2" style={{ background: 'rgba(255,255,255,0.06)' }}>
-          <p className="text-xs" style={{ color: 'rgba(180,200,230,0.5)' }}>Selamat datang</p>
-          <p className="text-sm font-medium" style={{ color: '#e8f0fb' }}>{user?.name || 'User'}</p>
-        </div>
+
 
         {navItems.map(item => (
           <NavLink key={item.to} to={item.to}
