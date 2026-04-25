@@ -1,6 +1,12 @@
 import { Router } from 'express'
+import { register, login, logout, getMe } from '../controllers/authController.js'
+import { verifyToken } from '../middleware/authMiddleware.js'
+
 const router = Router()
 
-router.get('/', (req, res) => res.json({ message: 'auth route' }))
+router.post('/register', register)
+router.post('/login', login)
+router.post('/logout', verifyToken, logout)
+router.get('/me', verifyToken, getMe)
 
 export default router
