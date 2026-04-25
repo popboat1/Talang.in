@@ -13,9 +13,12 @@ const navItems = [
   { to: '/report', label: 'Laporan', icon: (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.2"/><path d="M5 7h6M5 9.5h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
   )},
+  { to: '/profile', label: 'Profil', icon: (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" strokeWidth="1.2"/><path d="M2 13c0-3.333 2.667-6 6-6s6 2.667 6 6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
+  )},
 ]
 
-const Sidebar = ({ user }) => {
+const Sidebar = () => {
   const navigate = useNavigate()
 
   return (
@@ -48,7 +51,7 @@ const Sidebar = ({ user }) => {
           </NavLink>
         ))}
 
-        <button onClick={() => navigate('/login')}
+        <button onClick={() => navigate('/')}
           className="mt-auto flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-blue-200/60 hover:text-blue-100 transition-all">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3H3a1 1 0 00-1 1v8a1 1 0 001 1h3M10 11l3-3-3-3M13 8H6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
           Keluar

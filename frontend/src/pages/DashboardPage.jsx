@@ -51,7 +51,7 @@ const DashboardPage = () => {
     <div className="flex min-h-screen" style={{ background: 'var(--color-background-tertiary)' }}>
       <Sidebar user={user} />
 
-      <main className="flex-1 flex flex-col gap-4 max-w-4xl w-full mx-auto pb-20 md:pb-6">
+      <main className="flex-1 p-4 md:p-6 pb-20 md:pb-6 flex flex-col gap-4 w-full">
 
         {/* ===== HEADER ===== */}
 
