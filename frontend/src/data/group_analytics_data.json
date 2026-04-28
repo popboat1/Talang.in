@@ -1,0 +1,454 @@
+{
+  "summary": {
+    "total_spending": 1535000,
+    "total_transactions": 10
+  },
+  "health_score": {
+    "score": 72,
+    "label": "Perlu perhatian"
+  },
+  "conflicts": [
+    {
+      "type": "payment_imbalance",
+      "member_id": "u1",
+      "member_name": "Andi",
+      "value": 70.68,
+      "severity": "high"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u2",
+      "to_member_id": "u1",
+      "transaction_id": "t1",
+      "days_overdue": 19,
+      "value": 25000,
+      "severity": "high"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u3",
+      "to_member_id": "u1",
+      "transaction_id": "t1",
+      "days_overdue": 19,
+      "value": 25000,
+      "severity": "high"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u2",
+      "to_member_id": "u1",
+      "transaction_id": "t2",
+      "days_overdue": 18,
+      "value": 30000,
+      "severity": "high"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u1",
+      "to_member_id": "u2",
+      "transaction_id": "t3",
+      "days_overdue": 17,
+      "value": 50000,
+      "severity": "high"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u3",
+      "to_member_id": "u2",
+      "transaction_id": "t3",
+      "days_overdue": 17,
+      "value": 50000,
+      "severity": "high"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u2",
+      "to_member_id": "u1",
+      "transaction_id": "t4",
+      "days_overdue": 16,
+      "value": 30000,
+      "severity": "high"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u3",
+      "to_member_id": "u1",
+      "transaction_id": "t4",
+      "days_overdue": 16,
+      "value": 30000,
+      "severity": "high"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u1",
+      "to_member_id": "u3",
+      "transaction_id": "t5",
+      "days_overdue": 15,
+      "value": 40000,
+      "severity": "high"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u4",
+      "to_member_id": "u3",
+      "transaction_id": "t5",
+      "days_overdue": 15,
+      "value": 40000,
+      "severity": "high"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u2",
+      "to_member_id": "u1",
+      "transaction_id": "t6",
+      "days_overdue": 14,
+      "value": 100000,
+      "severity": "medium"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u3",
+      "to_member_id": "u1",
+      "transaction_id": "t6",
+      "days_overdue": 14,
+      "value": 100000,
+      "severity": "medium"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u4",
+      "to_member_id": "u1",
+      "transaction_id": "t6",
+      "days_overdue": 14,
+      "value": 100000,
+      "severity": "medium"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u5",
+      "to_member_id": "u1",
+      "transaction_id": "t6",
+      "days_overdue": 14,
+      "value": 100000,
+      "severity": "medium"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u2",
+      "to_member_id": "u4",
+      "transaction_id": "t7",
+      "days_overdue": 12,
+      "value": 20000,
+      "severity": "medium"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u3",
+      "to_member_id": "u4",
+      "transaction_id": "t7",
+      "days_overdue": 12,
+      "value": 20000,
+      "severity": "medium"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u5",
+      "to_member_id": "u4",
+      "transaction_id": "t7",
+      "days_overdue": 12,
+      "value": 20000,
+      "severity": "medium"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u2",
+      "to_member_id": "u1",
+      "transaction_id": "t8",
+      "days_overdue": 10,
+      "value": 50000,
+      "severity": "medium"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u3",
+      "to_member_id": "u1",
+      "transaction_id": "t8",
+      "days_overdue": 10,
+      "value": 50000,
+      "severity": "medium"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u4",
+      "to_member_id": "u1",
+      "transaction_id": "t8",
+      "days_overdue": 10,
+      "value": 50000,
+      "severity": "medium"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u5",
+      "to_member_id": "u1",
+      "transaction_id": "t8",
+      "days_overdue": 10,
+      "value": 50000,
+      "severity": "medium"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u3",
+      "to_member_id": "u2",
+      "transaction_id": "t9",
+      "days_overdue": 8,
+      "value": 25000,
+      "severity": "medium"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u4",
+      "to_member_id": "u2",
+      "transaction_id": "t9",
+      "days_overdue": 8,
+      "value": 25000,
+      "severity": "medium"
+    },
+    {
+      "type": "overdue_debt",
+      "member_id": "u5",
+      "to_member_id": "u2",
+      "transaction_id": "t9",
+      "days_overdue": 8,
+      "value": 25000,
+      "severity": "medium"
+    }
+  ],
+  "insights": [
+    {
+      "type": "payment_imbalance",
+      "severity": "high",
+      "message": "Andi terlalu sering menjadi pembayar utama dalam grup dengan kontribusi pembayaran sekitar 70.68%."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "high",
+      "message": "Terdapat utang yang belum diselesaikan selama 19 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "high",
+      "message": "Terdapat utang yang belum diselesaikan selama 19 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "high",
+      "message": "Terdapat utang yang belum diselesaikan selama 18 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "high",
+      "message": "Terdapat utang yang belum diselesaikan selama 17 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "high",
+      "message": "Terdapat utang yang belum diselesaikan selama 17 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "high",
+      "message": "Terdapat utang yang belum diselesaikan selama 16 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "high",
+      "message": "Terdapat utang yang belum diselesaikan selama 16 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "high",
+      "message": "Terdapat utang yang belum diselesaikan selama 15 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "high",
+      "message": "Terdapat utang yang belum diselesaikan selama 15 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "medium",
+      "message": "Terdapat utang yang belum diselesaikan selama 14 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "medium",
+      "message": "Terdapat utang yang belum diselesaikan selama 14 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "medium",
+      "message": "Terdapat utang yang belum diselesaikan selama 14 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "medium",
+      "message": "Terdapat utang yang belum diselesaikan selama 14 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "medium",
+      "message": "Terdapat utang yang belum diselesaikan selama 12 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "medium",
+      "message": "Terdapat utang yang belum diselesaikan selama 12 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "medium",
+      "message": "Terdapat utang yang belum diselesaikan selama 12 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "medium",
+      "message": "Terdapat utang yang belum diselesaikan selama 10 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "medium",
+      "message": "Terdapat utang yang belum diselesaikan selama 10 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "medium",
+      "message": "Terdapat utang yang belum diselesaikan selama 10 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "medium",
+      "message": "Terdapat utang yang belum diselesaikan selama 10 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "medium",
+      "message": "Terdapat utang yang belum diselesaikan selama 8 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "medium",
+      "message": "Terdapat utang yang belum diselesaikan selama 8 hari."
+    },
+    {
+      "type": "overdue_debt",
+      "severity": "medium",
+      "message": "Terdapat utang yang belum diselesaikan selama 8 hari."
+    }
+  ],
+  "recommendations": [
+    {
+      "type": "payment_imbalance",
+      "message": "Disarankan anggota lain menjadi pembayar pada transaksi berikutnya agar beban pembayaran lebih seimbang."
+    },
+    {
+      "type": "overdue_debt",
+      "message": "Beberapa utang sudah cukup lama belum dibayar. Grup disarankan menyelesaikan utang lama sebelum menambah transaksi baru."
+    }
+  ],
+  "charts": {
+    "spending_by_category": [
+      {
+        "category": "akomodasi",
+        "total": 500000
+      },
+      {
+        "category": "belanja",
+        "total": 150000
+      },
+      {
+        "category": "hiburan",
+        "total": 250000
+      },
+      {
+        "category": "makanan",
+        "total": 345000
+      },
+      {
+        "category": "minuman",
+        "total": 170000
+      },
+      {
+        "category": "transportasi",
+        "total": 120000
+      }
+    ],
+    "spending_by_member": [
+      {
+        "member_id": "u1",
+        "name": "Andi",
+        "total_paid": 1085000.0
+      },
+      {
+        "member_id": "u2",
+        "name": "Budi",
+        "total_paid": 250000.0
+      },
+      {
+        "member_id": "u3",
+        "name": "Citra",
+        "total_paid": 120000.0
+      },
+      {
+        "member_id": "u4",
+        "name": "Dina",
+        "total_paid": 80000.0
+      },
+      {
+        "member_id": "u5",
+        "name": "Eka",
+        "total_paid": 0.0
+      }
+    ],
+    "payment_count": [
+      {
+        "member_id": "u1",
+        "name": "Andi",
+        "payment_count": 6.0
+      },
+      {
+        "member_id": "u2",
+        "name": "Budi",
+        "payment_count": 2.0
+      },
+      {
+        "member_id": "u3",
+        "name": "Citra",
+        "payment_count": 1.0
+      },
+      {
+        "member_id": "u4",
+        "name": "Dina",
+        "payment_count": 1.0
+      },
+      {
+        "member_id": "u5",
+        "name": "Eka",
+        "payment_count": 0.0
+      }
+    ],
+    "weekly_trend": [
+      {
+        "date": "2026-04-05 00:00:00",
+        "total": 495000
+      },
+      {
+        "date": "2026-04-12 00:00:00",
+        "total": 930000
+      },
+      {
+        "date": "2026-04-19 00:00:00",
+        "total": 110000
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+transaction_id,group_id,date,title,category,amount,paid_by
+t1,g1,2026-04-01,Makan Geprek,makanan,75000,u1
+t2,g1,2026-04-02,Kopi,minuman,60000,u1
+t3,g1,2026-04-03,Belanja Indomaret,belanja,150000,u2
+t4,g1,2026-04-04,Makan Ayam,makanan,90000,u1
+t5,g1,2026-04-05,Bensin Trip,transportasi,120000,u3
+t6,g1,2026-04-06,Sewa Villa,akomodasi,500000,u1
+t7,g1,2026-04-08,Snack Bareng,makanan,80000,u4
+t8,g1,2026-04-10,Tiket Wisata,hiburan,250000,u1
+t9,g1,2026-04-12,Makan Bakso,makanan,100000,u2
+t10,g1,2026-04-15,Minuman Cafe,minuman,110000,u1

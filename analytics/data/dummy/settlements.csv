@@ -1,0 +1,5 @@
+settlement_id,from_member,to_member,amount,date
+s1,u2,u1,25000,2026-04-03
+s2,u3,u1,25000,2026-04-04
+s3,u4,u3,40000,2026-04-09
+s4,u2,u1,30000,2026-04-12

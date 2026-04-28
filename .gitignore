@@ -1,1 +1,13 @@
+.envnode_modules/
+**/node_modules/
+__pycache__/
+**/__pycache__/
+*.pyc
+
 .env
+.env.local
+frontend/.env
+frontend/.env.local
+
+dist/
+frontend/dist/

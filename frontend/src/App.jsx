@@ -1,26 +1,30 @@
 import { Routes, Route } from 'react-router-dom'
+
+import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
 import GroupPage from './pages/GroupPage'
 import GroupDetailPage from './pages/GroupDetailPage'
 import TransactionPage from './pages/TransactionPage'
-import ReportPage from './pages/ReportPage'
 import GroupNewPage from './pages/GroupNewPage'
 import ProfilePage from './pages/ProfilePage'
+import GroupAnalyticsPage from './pages/GroupAnalyticsPage'
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<LoginPage />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/group" element={<GroupPage />} />
       <Route path="/group/:id" element={<GroupDetailPage />} />
       <Route path="/transaction" element={<TransactionPage />} />
-      <Route path="/report" element={<ReportPage />} />
+      <Route path="/report" element={<GroupAnalyticsPage />} />
       <Route path="/group/new" element={<GroupNewPage />} />
       <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/groups/:groupId/analytics" element={<GroupAnalyticsPage />} />
     </Routes>
   )
 }
