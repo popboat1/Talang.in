@@ -15,10 +15,10 @@ const GroupPage = () => {
       try {
         const data = await getMyGroups()
         const formatted = data.map(g => ({
-          id: g.groups.id,
-          name: g.groups.name,
-          memberCount: g.groups.group_members?.[0]?.count || 0,
-          totalExpense: 0, // nanti diisi setelah transaction API siap
+          id: g.id,
+          name: g.name,
+          memberCount: g.memberCount || 0,
+          totalExpense: 0,
         }))
         setGroups(formatted)
       } catch (err) {

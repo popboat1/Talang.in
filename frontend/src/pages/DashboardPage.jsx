@@ -22,9 +22,9 @@ const DashboardPage = () => {
       try {
         const groupsData = await getMyGroups()
         const formatted = groupsData.map(g => ({
-          id: g.groups.id,
-          name: g.groups.name,
-          memberCount: g.groups.group_members?.[0]?.count || 0,
+          id: g.id,
+          name: g.name,
+          memberCount: g.memberCount || 0,
           role: g.role,
         }))
         setGroups(formatted)

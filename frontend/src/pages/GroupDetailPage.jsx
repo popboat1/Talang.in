@@ -1,8 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
+import AddManualModal from '../components/AddManualModal'
 import { getGroupById } from '../services/groupService'
+import { getGroupTransactions, getGroupDebts } from '../services/transactionService'
 import { getUser } from '../services/authService'
+import { dummyCategories } from '../data/dummyData'
 
 const tabs = ['Transaksi', 'Hutang', 'Anggota']
 
@@ -12,22 +15,36 @@ const GroupDetailPage = () => {
   const user = getUser()
   const [activeTab, setActiveTab] = useState('Transaksi')
   const [group, setGroup] = useState(null)
+  const [transactions, setTransactions] = useState([])
+  const [debts, setDebts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [showManual, setShowManual] = useState(false)
 
-  useEffect(() => {
-    const fetchGroup = async () => {
-      try {
-        const data = await getGroupById(id)
-        setGroup(data)
-      } catch {
-        setError('Grup tidak ditemukan atau kamu bukan anggota')
-      } finally {
-        setLoading(false)
-      }
+  const fetchAll = useCallback(async () => {
+    try {
+      const [groupData, trxData, debtData] = await Promise.all([
+        getGroupById(id),
+        getGroupTransactions(id),
+        getGroupDebts(id),
+      ])
+      setGroup(groupData)
+      setTransactions(trxData || [])
+      setDebts(debtData || [])
+    } catch {
+      setError('Grup tidak ditemukan atau kamu bukan anggota')
+    } finally {
+      setLoading(false)
     }
-    fetchGroup()
   }, [id])
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { fetchAll() }, [fetchAll])
+
+  const handleAdd = async () => {
+    // Refresh semua data setelah tambah transaksi
+    await fetchAll()
+  }
 
   if (loading) return (
     <div className="flex min-h-screen" style={{ background: 'var(--color-background-tertiary)' }}>
@@ -48,10 +65,14 @@ const GroupDetailPage = () => {
   )
 
   const members = group.group_members || []
-  // Dummy dulu — nanti diganti setelah transaction API siap
-  const transactions = []
-  const debts = []
-  const totalExpense = 0
+
+  // Format members untuk AddManualModal: [{id, name}]
+  const memberOptions = members.map(m => ({
+    id: m.profiles?.id,
+    name: m.profiles?.full_name || m.profiles?.email || 'Unknown'
+  }))
+
+  const totalExpense = transactions.reduce((sum, t) => sum + Number(t.amount), 0)
 
   return (
     <div className="flex min-h-screen" style={{ background: 'var(--color-background-tertiary)' }}>
@@ -105,7 +126,8 @@ const GroupDetailPage = () => {
             <>
               <div className="flex justify-between items-center">
                 <h2 className="text-sm font-medium">Riwayat Transaksi</h2>
-                <button className="px-3 py-1.5 rounded-lg text-xs text-white"
+                <button onClick={() => setShowManual(true)}
+                  className="px-3 py-1.5 rounded-lg text-xs text-white"
                   style={{ background: '#0c3460' }}>
                   + Tambah
                 </button>
@@ -117,26 +139,36 @@ const GroupDetailPage = () => {
                   <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>Tambah transaksi pertama grup ini!</p>
                 </div>
               ) : (
-                transactions.map(t => (
-                  <div key={t.id} className="rounded-xl border p-4"
-                    style={{ background: 'var(--color-background-primary)', borderColor: 'var(--color-border-tertiary)' }}>
-                    <div className="flex justify-between mb-2">
-                      <div>
-                        <p className="text-sm font-medium">{t.description}</p>
-                        <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{t.date} · {t.category}</p>
+                transactions.map(t => {
+                  const payers = t.transaction_payers || []
+                  const splits = t.transaction_splits || []
+                  const payerNames = payers.map(p => p.profiles?.full_name || 'Unknown').join(', ')
+                  const perOrang = splits.length > 0 ? Math.round(t.amount / splits.length) : 0
+                  const date = new Date(t.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
+
+                  return (
+                    <div key={t.id} className="rounded-xl border p-4"
+                      style={{ background: 'var(--color-background-primary)', borderColor: 'var(--color-border-tertiary)' }}>
+                      <div className="flex justify-between mb-2">
+                        <div>
+                          <p className="text-sm font-medium">{t.description}</p>
+                          <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
+                            {date} · {t.category}
+                          </p>
+                        </div>
+                        <p className="text-sm font-medium">Rp {Number(t.amount).toLocaleString('id-ID')}</p>
                       </div>
-                      <p className="text-sm font-medium">Rp {t.amount.toLocaleString('id-ID')}</p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                          Dibayar oleh <span className="text-blue-600 font-medium">{payerNames}</span> · dibagi {splits.length} orang
+                        </p>
+                        <p className="text-xs font-medium text-blue-600">
+                          Rp {perOrang.toLocaleString('id-ID')}/org
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                        Dibayar oleh <span className="text-blue-600 font-medium">{t.payer}</span> · dibagi {t.splitCount} orang
-                      </p>
-                      <p className="text-xs font-medium text-blue-600">
-                        Rp {t.perOrang.toLocaleString('id-ID')}/org
-                      </p>
-                    </div>
-                  </div>
-                ))
+                  )
+                })
               )}
             </>
           )}
@@ -161,9 +193,9 @@ const GroupDetailPage = () => {
                   <div key={i} className="flex items-center justify-between p-4 rounded-xl border"
                     style={{ background: 'var(--color-background-primary)', borderColor: 'var(--color-border-tertiary)' }}>
                     <p className="text-sm">
-                      <span className="font-medium">{d.from}</span>
+                      <span className="font-medium">{d.from.name}</span>
                       <span style={{ color: 'var(--color-text-secondary)' }}> hutang ke </span>
-                      <span className="font-medium">{d.to}</span>
+                      <span className="font-medium">{d.to.name}</span>
                     </p>
                     <p className="text-sm font-medium text-red-700">Rp {d.amount.toLocaleString('id-ID')}</p>
                   </div>
@@ -211,6 +243,18 @@ const GroupDetailPage = () => {
 
         </div>
       </main>
+
+      {/* Modal Tambah Transaksi */}
+      {showManual && (
+        <AddManualModal
+          onClose={() => setShowManual(false)}
+          onAdd={handleAdd}
+          dummyGroups={{}}
+          dummyCategories={dummyCategories}
+          members={memberOptions}
+          groupId={id}
+        />
+      )}
     </div>
   )
 }

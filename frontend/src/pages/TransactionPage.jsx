@@ -1,27 +1,76 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TransactionCard from '../components/TransactionCard'
 import AddManualModal from '../components/AddManualModal'
 import AIInputModal from '../components/AIInputModal'
-import { dummyTransactions, dummyGroups, dummyCategories } from '../data/dummyData'
-
+import { getUserTransactions } from '../services/transactionService'
+import { getMyGroups } from '../services/groupService'
+import { dummyCategories } from '../data/dummyData'
 
 const TransactionPage = () => {
   const navigate = useNavigate()
-  const [transactions, setTransactions] = useState(dummyTransactions)
+  const [transactions, setTransactions] = useState([])
+    const [myGroups, setMyGroups] = useState([])
+  const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('semua')
   const [search, setSearch] = useState('')
   const [showManual, setShowManual] = useState(false)
   const [showAI, setShowAI] = useState(false)
 
-  const handleAdd = (trx) => setTransactions([trx, ...transactions])
+useEffect(() => {
+  let ignore = false
+  const load = async () => {
+    try {
+      // Fetch grup dan transaksi terpisah biar tidak saling block
+      const groupData = await getMyGroups().catch(() => [])
+      const trxData = await getUserTransactions().catch(() => [])
+      
+      if (!ignore) {
+        setMyGroups(groupData || [])
+        setTransactions(trxData || [])
+      }
+    } catch (err) {
+      console.error(err)
+    } finally {
+      if (!ignore) setLoading(false)
+    }
+  }
+  load()
+  return () => { ignore = true }
+}, [])
 
-  const filtered = transactions.filter(trx => {
+  // Format transaksi dari backend ke format yang dipakai TransactionCard
+  const formatted = transactions.map(t => ({
+    id: t.id,
+    desc: t.description,
+    group: t.groups?.name || '-',
+    groupId: t.group_id,
+    date: new Date(t.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }),
+    category: t.category,
+    amount: Number(t.amount),
+    paidBy: t.transaction_payers?.map(p => p.profiles?.full_name).join(', ') || '-',
+    splitWith: t.transaction_splits?.map(s => s.profiles?.full_name) || [],
+    perOrang: t.transaction_splits?.length > 0
+      ? Math.round(Number(t.amount) / t.transaction_splits.length)
+      : Number(t.amount),
+  }))
+
+  // Ambil nama grup unik untuk filter tabs
+  const groupNames = [...new Set(formatted.map(t => t.group))]
+
+  const filtered = formatted.filter(trx => {
     const matchSearch = trx.desc.toLowerCase().includes(search.toLowerCase())
       || trx.group.toLowerCase().includes(search.toLowerCase())
     const matchTab = activeTab === 'semua' || trx.group === activeTab
     return matchSearch && matchTab
   })
+
+  const handleAdd = async () => {
+    const data = await getUserTransactions()
+    setTransactions(data || [])
+  }
+
+  console.log('myGroups', myGroups)
 
   return (
     <div className="min-h-screen" style={{ background: "#f0f4f9" }}>
@@ -64,9 +113,9 @@ const TransactionPage = () => {
           </button>
         </div>
 
-        {/* Filter tabs */}
+        {/* Filter tabs — dinamis dari data real */}
         <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
-          {['semua', ...Object.keys(dummyGroups)].map((tab) => (
+          {['semua', ...groupNames].map((tab) => (
             <button key={tab} onClick={() => setActiveTab(tab)}
               className="px-3 py-1 rounded-full text-xs font-medium transition-all whitespace-nowrap"
               style={{
@@ -81,7 +130,11 @@ const TransactionPage = () => {
 
         {/* List */}
         <div className="flex flex-col gap-2">
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="py-12 text-center bg-white rounded-2xl">
+              <p className="text-xs text-gray-400">Memuat transaksi...</p>
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="py-12 text-center bg-white rounded-2xl">
               <p className="text-2xl mb-2">📭</p>
               <p className="text-xs text-gray-400">Tidak ada transaksi</p>
@@ -96,7 +149,8 @@ const TransactionPage = () => {
         <AddManualModal
           onClose={() => setShowManual(false)}
           onAdd={handleAdd}
-          dummyGroups={dummyGroups}
+          myGroups={myGroups}
+          dummyGroups={{}}
           dummyCategories={dummyCategories}
         />
       )}

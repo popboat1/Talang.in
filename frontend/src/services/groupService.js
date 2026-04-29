@@ -1,8 +1,14 @@
 import api from './api'
 
 export const getMyGroups = async () => {
-  const { data } = await api.get('/groups')
-  return data.groups
+    const { data } = await api.get('/groups')
+    return data.groups.map(g => ({
+      id: g.groups.id,
+      name: g.groups.name,
+      description: g.groups.description,
+      role: g.role,
+      memberCount: g.groups.group_members?.[0]?.count || 0
+    }))
 }
 
 export const getGroupById = async (id) => {
