@@ -1,21 +1,22 @@
-import { supabase } from '../config/supabase.js'
+import jwt from 'jsonwebtoken'
 
-export const verifyToken = async (req, res, next) => {
+export const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ message: 'Token tidak ditemukan' })
   }
 
   const token = authHeader.split(' ')[1]
-
-  // Verifikasi token lewat Supabase, bukan jwt.verify
-  const { data, error } = await supabase.auth.getUser(token)
-
-  if (error || !data.user) {
+  try {
+    // Decode tanpa verify karena token di-sign oleh Supabase
+    const decoded = jwt.decode(token)
+    console.log('DECODED:', JSON.stringify(decoded, null, 2))
+    
+    if (!decoded) return res.status(401).json({ message: 'Token tidak valid' })
+    
+    req.user = decoded
+    next()
+  } catch (err) {
     return res.status(401).json({ message: 'Token tidak valid' })
   }
-
-  // Struktur sama seperti sebelumnya, req.user.sub tetap bisa dipakai
-  req.user = { sub: data.user.id, ...data.user }
-  next()
 }

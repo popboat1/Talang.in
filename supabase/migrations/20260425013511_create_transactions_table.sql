@@ -9,6 +9,13 @@ CREATE TABLE transactions (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
+CREATE TABLE transaction_payers (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  transaction_id UUID REFERENCES transactions(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  amount NUMERIC NOT NULL -- berapa yang dia bayar duluan
+);
+
 CREATE TABLE transaction_splits (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   transaction_id UUID REFERENCES transactions(id) ON DELETE CASCADE,
