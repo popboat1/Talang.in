@@ -1,0 +1,352 @@
+[
+    {
+        "text": "tadi beli nasi goreng seafood totalnya 28rb. trus si Raka dateng bawa es teh manis 10rb buat nemenin makan.",
+        "entities": [
+            {
+                "start": 10,
+                "end": 30,
+                "label": "ITEM",
+                "text": "nasi goreng seafood"
+            },
+            {
+                "start": 41,
+                "end": 45,
+                "label": "PRICE",
+                "text": "28rb"
+            },
+            {
+                "start": 56,
+                "end": 60,
+                "label": "PERSON",
+                "text": "Raka"
+            },
+            {
+                "start": 74,
+                "end": 85,
+                "label": "ITEM",
+                "text": "es teh manis"
+            },
+            {
+                "start": 86,
+                "end": 90,
+                "label": "PRICE",
+                "text": "10rb"
+            }
+        ]
+    },
+    {
+        "text": "si Rina tadi pesen ayam geprek level 2 25rb. abis itu nambah jus alpukat 15rb lagi.",
+        "entities": [
+            {
+                "start": 3,
+                "end": 7,
+                "label": "PERSON",
+                "text": "Rina"
+            },
+            {
+                "start": 20,
+                "end": 41,
+                "label": "ITEM",
+                "text": "ayam geprek level 2"
+            },
+            {
+                "start": 42,
+                "end": 46,
+                "label": "PRICE",
+                "text": "25rb"
+            },
+            {
+                "start": 68,
+                "end": 80,
+                "label": "ITEM",
+                "text": "jus alpukat"
+            },
+            {
+                "start": 81,
+                "end": 85,
+                "label": "PRICE",
+                "text": "15rb"
+            }
+        ]
+    },
+    {
+        "text": "aku sama Dika makan bakso urat jumbo 30rb. terus beli teh tarik dingin 12rb buat pulang.",
+        "entities": [
+            {
+                "start": 9,
+                "end": 13,
+                "label": "PERSON",
+                "text": "Dika"
+            },
+            {
+                "start": 21,
+                "end": 38,
+                "label": "ITEM",
+                "text": "bakso urat jumbo"
+            },
+            {
+                "start": 39,
+                "end": 43,
+                "label": "PRICE",
+                "text": "30rb"
+            },
+            {
+                "start": 57,
+                "end": 73,
+                "label": "ITEM",
+                "text": "teh tarik dingin"
+            },
+            {
+                "start": 74,
+                "end": 78,
+                "label": "PRICE",
+                "text": "12rb"
+            }
+        ]
+    },
+    {
+        "text": "bareng Aldi beli mie ayam bakso spesial 27rb. trus tambah es jeruk 8rb aja.",
+        "entities": [
+            {
+                "start": 7,
+                "end": 11,
+                "label": "PERSON",
+                "text": "Aldi"
+            },
+            {
+                "start": 17,
+                "end": 45,
+                "label": "ITEM",
+                "text": "mie ayam bakso spesial"
+            },
+            {
+                "start": 46,
+                "end": 50,
+                "label": "PRICE",
+                "text": "27rb"
+            },
+            {
+                "start": 65,
+                "end": 73,
+                "label": "ITEM",
+                "text": "es jeruk"
+            },
+            {
+                "start": 74,
+                "end": 77,
+                "label": "PRICE",
+                "text": "8rb"
+            }
+        ]
+    },
+    {
+        "text": "Maya tadi beli seblak ceker pedas 22rb. terus pesen thai tea large 14rb juga.",
+        "entities": [
+            {
+                "start": 0,
+                "end": 4,
+                "label": "PERSON",
+                "text": "Maya"
+            },
+            {
+                "start": 16,
+                "end": 35,
+                "label": "ITEM",
+                "text": "seblak ceker pedas"
+            },
+            {
+                "start": 36,
+                "end": 40,
+                "label": "PRICE",
+                "text": "22rb"
+            },
+            {
+                "start": 55,
+                "end": 70,
+                "label": "ITEM",
+                "text": "thai tea large"
+            },
+            {
+                "start": 71,
+                "end": 75,
+                "label": "PRICE",
+                "text": "14rb"
+            }
+        ]
+    },
+    {
+        "text": "Fajar beli burgerr sapi keju 35rb. habis itu tambah kentang goreng 18rb.",
+        "entities": [
+            {
+                "start": 0,
+                "end": 5,
+                "label": "PERSON",
+                "text": "Fajar"
+            },
+            {
+                "start": 11,
+                "end": 28,
+                "label": "ITEM",
+                "text": "burger sapi keju"
+            },
+            {
+                "start": 29,
+                "end": 33,
+                "label": "PRICE",
+                "text": "35rb"
+            },
+            {
+                "start": 58,
+                "end": 73,
+                "label": "ITEM",
+                "text": "kentang goreng"
+            },
+            {
+                "start": 74,
+                "end": 78,
+                "label": "PRICE",
+                "text": "18rb"
+            }
+        ]
+    },
+    {
+        "text": "Riko pesenn roti bakar coklat keju 20rb. terus beli kopi susu gula aren 24rb.",
+        "entities": [
+            {
+                "start": 0,
+                "end": 4,
+                "label": "PERSON",
+                "text": "Riko"
+            },
+            {
+                "start": 11,
+                "end": 35,
+                "label": "ITEM",
+                "text": "roti bakar coklat keju"
+            },
+            {
+                "start": 36,
+                "end": 40,
+                "label": "PRICE",
+                "text": "20rb"
+            },
+            {
+                "start": 54,
+                "end": 76,
+                "label": "ITEM",
+                "text": "kopi susu gula aren"
+            },
+            {
+                "start": 77,
+                "end": 81,
+                "label": "PRICE",
+                "text": "24rb"
+            }
+        ]
+    },
+    {
+        "text": "Sinta beli nasi ayam crispy 29rb. trus nambah pudding coklat 11rb.",
+        "entities": [
+            {
+                "start": 0,
+                "end": 5,
+                "label": "PERSON",
+                "text": "Sinta"
+            },
+            {
+                "start": 11,
+                "end": 28,
+                "label": "ITEM",
+                "text": "nasi ayam crispy"
+            },
+            {
+                "start": 29,
+                "end": 33,
+                "label": "PRICE",
+                "text": "29rb"
+            },
+            {
+                "start": 49,
+                "end": 64,
+                "label": "ITEM",
+                "text": "pudding coklat"
+            },
+            {
+                "start": 65,
+                "end": 69,
+                "label": "PRICE",
+                "text": "11rb"
+            }
+        ]
+    },
+    {
+        "text": "Andi bli kebab besar isi daging 26rb. terus ambil lemon tea 9rb.",
+        "entities": [
+            {
+                "start": 0,
+                "end": 5,
+                "label": "PERSON",
+                "text": "Andi"
+            },
+            {
+                "start": 11,
+                "end": 35,
+                "label": "ITEM",
+                "text": "kebab besar isi daging"
+            },
+            {
+                "start": 36,
+                "end": 40,
+                "label": "PRICE",
+                "text": "26rb"
+            },
+            {
+                "start": 56,
+                "end": 66,
+                "label": "ITEM",
+                "text": "lemon tea"
+            },
+            {
+                "start": 67,
+                "end": 70,
+                "label": "PRICE",
+                "text": "9rb"
+            }
+        ]
+    },
+    {
+        "text": "Yuni tadii makan dimsum ayam udang 24rb. abis itu beli matcha latte 19rb.",
+        "entities": [
+            {
+                "start": 0,
+                "end": 4,
+                "label": "PERSON",
+                "text": "Yuni"
+            },
+            {
+                "start": 17,
+                "end": 35,
+                "label": "ITEM",
+                "text": "dimsum ayam udang"
+            },
+            {
+                "start": 36,
+                "end": 40,
+                "label": "PRICE",
+                "text": "24rb"
+            },
+            {
+                "start": 60,
+                "end": 72,
+                "label": "ITEM",
+                "text": "matcha latte"
+            },
+            {
+                "start": 73,
+                "end": 77,
+                "label": "PRICE",
+                "text": "19rb"
+            }
+        ]
+    }
+]
