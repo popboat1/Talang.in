@@ -25,3 +25,14 @@ export const getUserTransactions = async () => {
     return data.transactions
 }
 
+export const settleDebt = async (groupId, { from_user, to_user, amount }) => {
+  const { data } = await api.post(`/transactions/group/${groupId}/settle`, {
+    from_user, to_user, amount,
+  })
+  return data
+}
+
+export const getUserDebts = async () => {
+  const { data } = await api.get('/transactions/user/debts')
+  return data.debts
+}

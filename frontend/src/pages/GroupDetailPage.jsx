@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import AddManualModal from '../components/AddManualModal'
+import SettleDebtModal from '../components/SettleDebtModal'
 import { getGroupById } from '../services/groupService'
 import { getGroupTransactions, getGroupDebts } from '../services/transactionService'
 import { getUser } from '../services/authService'
@@ -13,6 +14,8 @@ const GroupDetailPage = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const user = getUser()
+  const currentUserId = user?.id
+
   const [activeTab, setActiveTab] = useState('Transaksi')
   const [group, setGroup] = useState(null)
   const [transactions, setTransactions] = useState([])
@@ -20,31 +23,28 @@ const GroupDetailPage = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showManual, setShowManual] = useState(false)
+  const [settleTarget, setSettleTarget] = useState(null)
 
-  const fetchAll = useCallback(async () => {
-    try {
-      const [groupData, trxData, debtData] = await Promise.all([
-        getGroupById(id),
-        getGroupTransactions(id),
-        getGroupDebts(id),
-      ])
-      setGroup(groupData)
-      setTransactions(trxData || [])
-      setDebts(debtData || [])
-    } catch {
-      setError('Grup tidak ditemukan atau kamu bukan anggota')
-    } finally {
-      setLoading(false)
-    }
-  }, [id])
-
+const fetchAll = useCallback(async () => {
+  try {
+    const [groupData, trxData, debtData] = await Promise.all([
+      getGroupById(id),
+      getGroupTransactions(id),
+      getGroupDebts(id),
+    ])
+    setGroup(groupData)
+    setTransactions(trxData || [])
+    setDebts(debtData || [])
+  } catch {
+    setError('Grup tidak ditemukan atau kamu bukan anggota')
+  } finally {
+    setLoading(false)
+  }
+}, [id]) 
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchAll() }, [fetchAll])
 
-  const handleAdd = async () => {
-    // Refresh semua data setelah tambah transaksi
-    await fetchAll()
-  }
+  const handleAdd = async () => await fetchAll()
 
   if (loading) return (
     <div className="flex min-h-screen" style={{ background: 'var(--color-background-tertiary)' }}>
@@ -66,7 +66,6 @@ const GroupDetailPage = () => {
 
   const members = group.group_members || []
 
-  // Format members untuk AddManualModal: [{id, name}]
   const memberOptions = members.map(m => ({
     id: m.profiles?.id,
     name: m.profiles?.full_name || m.profiles?.email || 'Unknown'
@@ -79,6 +78,7 @@ const GroupDetailPage = () => {
       <Sidebar user={user} />
 
       <main className="flex-1 pb-20 md:pb-0 max-w-2xl w-full mx-auto">
+
         {/* Header */}
         <div className="p-4 md:p-6 pb-4"
           style={{ background: 'linear-gradient(160deg, #0c3460 0%, #071a35 100%)' }}>
@@ -132,6 +132,7 @@ const GroupDetailPage = () => {
                   + Tambah
                 </button>
               </div>
+
               {transactions.length === 0 ? (
                 <div className="text-center py-10 rounded-xl border"
                   style={{ background: 'var(--color-background-primary)', borderColor: 'var(--color-border-tertiary)' }}>
@@ -183,21 +184,34 @@ const GroupDetailPage = () => {
                   ✦ Simplify Debt
                 </button>
               </div>
+
               {debts.length === 0 ? (
                 <div className="text-center py-10 rounded-xl border"
                   style={{ background: 'var(--color-background-primary)', borderColor: 'var(--color-border-tertiary)' }}>
-                  <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Tidak ada hutang 🎉</p>
+                  <p className="text-2xl mb-2">🎉</p>
+                  <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Tidak ada hutang</p>
                 </div>
               ) : (
                 debts.map((d, i) => (
                   <div key={i} className="flex items-center justify-between p-4 rounded-xl border"
                     style={{ background: 'var(--color-background-primary)', borderColor: 'var(--color-border-tertiary)' }}>
-                    <p className="text-sm">
-                      <span className="font-medium">{d.from.name}</span>
-                      <span style={{ color: 'var(--color-text-secondary)' }}> hutang ke </span>
-                      <span className="font-medium">{d.to.name}</span>
-                    </p>
-                    <p className="text-sm font-medium text-red-700">Rp {d.amount.toLocaleString('id-ID')}</p>
+                    <div>
+                      <p className="text-sm">
+                        <span className="font-medium">{d.from.name}</span>
+                        <span style={{ color: 'var(--color-text-secondary)' }}> hutang ke </span>
+                        <span className="font-medium">{d.to.name}</span>
+                      </p>
+                      <p className="text-sm font-medium text-red-700 mt-0.5">
+                        Rp {d.amount.toLocaleString('id-ID')}
+                      </p>
+                    </div>
+                    {d.from.id === currentUserId && (
+                      <button onClick={() => setSettleTarget(d)}
+                        className="px-3 py-1.5 rounded-lg text-xs text-white"
+                        style={{ background: '#0c3460' }}>
+                        Bayar
+                      </button>
+                    )}
                   </div>
                 ))
               )}
@@ -253,6 +267,16 @@ const GroupDetailPage = () => {
           dummyCategories={dummyCategories}
           members={memberOptions}
           groupId={id}
+        />
+      )}
+
+      {/* Modal Settle Debt */}
+      {settleTarget && (
+        <SettleDebtModal
+          debt={settleTarget}
+          groupId={id}
+          onClose={() => setSettleTarget(null)}
+          onSuccess={fetchAll}
         />
       )}
     </div>
