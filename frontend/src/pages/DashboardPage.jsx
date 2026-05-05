@@ -1,12 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Sidebar from '../components/Sidebar'
-import DebtItem from '../components/DebtItem'
 import GroupCard from '../components/GroupCard'
 import TransactionItem from '../components/TransactionItem'
 import QuickAction from '../components/QuickAction'
 import { getMyGroups } from '../services/groupService'
 import { getUser } from '../services/authService'
+import { getUserTransactions, getUserDebts } from '../services/transactionService'
+
 
 const DashboardPage = () => {
   const navigate = useNavigate()
@@ -14,13 +15,18 @@ const DashboardPage = () => {
   const [groups, setGroups] = useState([])
   const [loading, setLoading] = useState(true)
 
-  const debts = []
-  const transactions = []
+  const [debts, setDebts] = useState([]) // gabungan owe + owed
+  const [transactions, setTransactions] = useState([])
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const groupsData = await getMyGroups()
+        const [groupsData, debtsData, trxData] = await Promise.all([
+          getMyGroups(),
+          getUserDebts(),
+          getUserTransactions(),
+        ])
+
         const formatted = groupsData.map(g => ({
           id: g.id,
           name: g.name,
@@ -28,6 +34,8 @@ const DashboardPage = () => {
           role: g.role,
         }))
         setGroups(formatted)
+        setDebts(debtsData)
+        setTransactions(trxData.slice(0, 5)) // tampilkan 5 transaksi terakhir
       } catch (err) {
         console.error(err)
       } finally {
@@ -37,8 +45,15 @@ const DashboardPage = () => {
     fetchData()
   }, [])
 
-  const totalOwe = debts.filter(d => d.type === 'owe').reduce((a, b) => a + b.amount, 0)
-  const totalOwed = debts.filter(d => d.type === 'owed').reduce((a, b) => a + b.amount, 0)
+  const currentUserId = user?.sub || user?.id
+  const oweCount = debts.filter(d => d.from.id === currentUserId).length
+  const owedCount = debts.filter(d => d.to.id === currentUserId).length
+  const totalOwe = debts
+    .filter(d => d.from.id === currentUserId)
+    .reduce((a, b) => a + b.amount, 0)
+  const totalOwed = debts
+    .filter(d => d.to.id === currentUserId)
+    .reduce((a, b) => a + b.amount, 0)
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'
   const initials = displayName.slice(0, 2).toUpperCase()
@@ -87,12 +102,12 @@ const DashboardPage = () => {
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs"
                 style={{ background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.85)' }}>
                 <span className="w-1.5 h-1.5 rounded-full bg-red-400 inline-block" />
-                Hutang Rp {totalOwe.toLocaleString('id-ID')}
+                Hutang Rp {totalOwe.toLocaleString('id-ID')} ({oweCount} orang)
               </div>
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs"
                 style={{ background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.85)' }}>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
-                Diutangi Rp {totalOwed.toLocaleString('id-ID')}
+                Diutangi Rp {totalOwed.toLocaleString('id-ID')} ({owedCount} orang)
               </div>
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs"
                 style={{ background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.85)' }}>
@@ -136,12 +151,12 @@ const DashboardPage = () => {
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs whitespace-nowrap flex-shrink-0"
                 style={{ background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.85)' }}>
                 <span className="w-1.5 h-1.5 rounded-full bg-red-400 inline-block" />
-                Hutang Rp {totalOwe.toLocaleString('id-ID')}
+                Hutang Rp {totalOwe.toLocaleString('id-ID')} ({oweCount} orang)
               </div>
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs whitespace-nowrap flex-shrink-0"
                 style={{ background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.85)' }}>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
-                Diutangi Rp {totalOwed.toLocaleString('id-ID')}
+                Diutangi Rp {totalOwed.toLocaleString('id-ID')} ({owedCount} orang)
               </div>
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs whitespace-nowrap flex-shrink-0"
                 style={{ background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.85)' }}>
@@ -156,10 +171,10 @@ const DashboardPage = () => {
         <div className="px-4 md:px-6 flex flex-col gap-4 -mt-6 md:mt-0">
 
           {/* Summary cards — mobile: overlap header, desktop: normal */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:hidden">
+          <div className="grid grid-cols-2      md:grid-cols-3 gap-3 md:hidden">
             {[
-              { label: 'Total utangmu', value: `Rp ${totalOwe.toLocaleString('id-ID')}`, sub: `ke ${debts.filter(d=>d.type==='owe').length} orang`, color: 'text-red-700' },
-              { label: 'Kamu diutangi', value: `Rp ${totalOwed.toLocaleString('id-ID')}`, sub: `dari ${debts.filter(d=>d.type==='owed').length} orang`, color: 'text-green-700' },
+              { label: 'Total utangmu', value: `Rp ${totalOwe.toLocaleString('id-ID')}`, sub: `ke ${oweCount} orang`, color: 'text-red-700' },
+              { label: 'Kamu diutangi', value: `Rp ${totalOwed.toLocaleString('id-ID')}`, sub: `dari ${owedCount} orang`, color: 'text-green-700' },
             ].map((card, i) => (
               <div key={i} className="rounded-xl p-3 border shadow-sm"
                 style={{ background: 'var(--color-background-primary)', borderColor: 'var(--color-border-tertiary)' }}>
@@ -173,8 +188,8 @@ const DashboardPage = () => {
           {/* Desktop summary cards */}
           <div className="hidden md:grid grid-cols-3 gap-3">
             {[
-              { label: 'Total utangmu', value: `Rp ${totalOwe.toLocaleString('id-ID')}`, sub: `ke ${debts.filter(d=>d.type==='owe').length} orang`, color: 'text-red-700' },
-              { label: 'Kamu diutangi', value: `Rp ${totalOwed.toLocaleString('id-ID')}`, sub: `dari ${debts.filter(d=>d.type==='owed').length} orang`, color: 'text-green-700' },
+              { label: 'Total utangmu', value: `Rp ${totalOwe.toLocaleString('id-ID')}`, sub: `ke ${oweCount} orang`, color: 'text-red-700' },
+              { label: 'Kamu diutangi', value: `Rp ${totalOwed.toLocaleString('id-ID')}`, sub: `dari ${owedCount} orang`, color: 'text-green-700' },
               { label: 'Grup aktif', value: loading ? '...' : `${groups.length} grup`, sub: loading ? '' : `${groups.reduce((a,b) => a + (parseInt(b.memberCount)||0), 0)} anggota total`, color: '' },
             ].map((card, i) => (
               <div key={i} className="rounded-xl p-3 border"
@@ -194,14 +209,26 @@ const DashboardPage = () => {
               <button className="text-xs text-blue-600" onClick={() => navigate('/transaction')}>Lihat semua</button>
             </div>
             {debts.length === 0 ? (
-              <p className="text-xs text-center py-4" style={{ color: 'var(--color-text-secondary)' }}>
-                Belum ada hutang 🎉
-              </p>
-            ) : (
-              <div className="flex flex-col gap-2">
-                {debts.map(d => <DebtItem key={d.id} {...d} />)}
-              </div>
-            )}
+            <p className="text-xs text-center py-4" style={{ color: 'var(--color-text-secondary)' }}>
+              Belum ada hutang 🎉
+            </p>
+              ) : (
+            <div className="flex flex-col gap-2">
+              {debts.slice(0, 3).map((d, i) => (
+                <div key={i} className="flex justify-between items-center py-2 border-b last:border-0"
+                  style={{ borderColor: 'var(--color-border-tertiary)' }}>
+                  <p className="text-xs" style={{ color: 'var(--color-text-primary)' }}>
+                    <span className="font-medium">{d.from.name}</span>
+                    <span style={{ color: 'var(--color-text-secondary)' }}> → </span>
+                    <span className="font-medium">{d.to.name}</span>
+                  </p>
+                  <span className="text-xs font-medium text-red-600">
+                    Rp {d.amount.toLocaleString('id-ID')}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
           </div>
 
           {/* Grup + Transaksi */}

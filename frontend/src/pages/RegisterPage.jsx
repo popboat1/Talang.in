@@ -1,6 +1,12 @@
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { register } from '../services/authService'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+)
 
 const RegisterPage = () => {
   const navigate = useNavigate()
@@ -32,6 +38,15 @@ const RegisterPage = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleGoogleLogin = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`
+      }
+    })
   }
 
   return (
@@ -157,7 +172,7 @@ const RegisterPage = () => {
               type="button"
               onClick={handleRegister}
               disabled={loading}
-              className="mt-6 w-full rounded-2xl py-3 text-sm font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-6 w-full rounded-2xl py-3 text-sm font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
               style={{ background: '#1a4f8a' }}
             >
               {loading ? 'Memproses...' : 'Daftar'}
@@ -171,7 +186,8 @@ const RegisterPage = () => {
 
             <button
               type="button"
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 py-3 text-sm font-semibold text-slate-700"
+              onClick={handleGoogleLogin}
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 py-3 text-sm font-semibold text-slate-700 cursor-pointer transition hover:bg-slate-100"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M15.5 8.17c0-.56-.05-1.1-.14-1.61H8v3.05h4.2a3.6 3.6 0 01-1.56 2.36v1.96h2.52C14.67 12.56 15.5 10.53 15.5 8.17z" fill="#4285F4" />

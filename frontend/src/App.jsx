@@ -1,4 +1,6 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { createClient } from '@supabase/supabase-js'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
@@ -10,7 +12,25 @@ import GroupNewPage from './pages/GroupNewPage'
 import ProfilePage from './pages/ProfilePage'
 import LandingPage from "./pages/LandingPage";
 
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+)
+
 function App() {
+    const navigate = useNavigate()
+
+    useEffect(() => {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          localStorage.setItem('token', session.access_token)
+          localStorage.setItem('user', JSON.stringify(session.user))
+          navigate('/dashboard')
+        }
+      })
+      return () => subscription.unsubscribe()
+    }, [navigate])
+
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
