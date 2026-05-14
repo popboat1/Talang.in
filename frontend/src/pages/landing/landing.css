@@ -1,0 +1,217 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --tl-bg: #faf7fc;
+  --tl-bg-soft: #f4eef8;
+  --tl-surface: #ffffff;
+  --tl-surface-muted: #f3eef7;
+  --tl-text: #24212a;
+  --tl-muted: #625b6d;
+  --tl-muted-2: #8a8195;
+  --tl-border: #e7dfed;
+  --tl-primary: #5a3b91;
+  --tl-primary-dark: #3f2473;
+  --tl-primary-soft: #ece3fb;
+  --tl-yellow: #f5d782;
+  --tl-yellow-soft: #fff5d8;
+  --tl-green: #22a36f;
+  --tl-green-soft: #e1f8eb;
+  --tl-red: #cc3d3d;
+  --tl-red-soft: #ffe9e9;
+  --tl-shadow: 0 20px 55px rgba(63, 36, 115, 0.1);
+  --tl-shadow-soft: 0 12px 32px rgba(63, 36, 115, 0.07);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.talang-landing h1,
+.talang-landing h2,
+.talang-landing h3 {
+  font-family: 'Inter', system-ui, sans-serif;
+  letter-spacing: -0.045em;
+  color: #24212a;
+}
+
+.talang-landing h1 {
+  font-weight: 900;
+}
+
+.talang-landing h2 {
+  font-weight: 850;
+}
+
+.talang-landing p {
+  letter-spacing: -0.01em;
+}
+
+.talang-landing {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.landing-page {
+  background: var(--tl-bg);
+}
+
+.landing-container {
+  width: min(1180px, calc(100% - 32px));
+  margin-inline: auto;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 720ms cubic-bezier(.2, .8, .2, 1), transform 720ms cubic-bezier(.2, .8, .2, 1);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.headline-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+.headline-word > span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(100%);
+  animation: tlWordIn 780ms cubic-bezier(.2, .85, .2, 1) forwards;
+}
+
+@keyframes tlWordIn {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tlFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes tlFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes tlBarGrow {
+  from {
+    transform: scaleY(.18);
+    opacity: .45;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes tlPulseSoft {
+  0%, 100% {
+    transform: scale(1);
+    opacity: .8;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: tlFadeIn 760ms cubic-bezier(.2, .85, .2, 1) both;
+}
+
+.animate-float {
+  animation: tlFloat 6.5s ease-in-out infinite;
+}
+
+.animate-pulse-soft {
+  animation: tlPulseSoft 3s ease-in-out infinite;
+}
+
+.bar-grow {
+  transform-origin: bottom;
+  animation: tlBarGrow 720ms cubic-bezier(.2, .85, .2, 1) both;
+}
+
+.section-space {
+  padding-block: 88px;
+}
+
+.soft-card {
+  border: 1px solid var(--tl-border);
+  background: var(--tl-surface);
+  box-shadow: var(--tl-shadow-soft);
+}
+
+.clean-button {
+  transition: transform 220ms ease, box-shadow 220ms ease, background-color 220ms ease, color 220ms ease, border-color 220ms ease;
+}
+
+.clean-button:hover {
+  transform: translateY(-2px);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@media (max-width: 768px) {
+  .landing-container {
+    width: min(100% - 24px, 1180px);
+  }
+
+  .section-space {
+    padding-block: 64px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+
+  .reveal,
+  .reveal.is-visible,
+  .headline-word > span {
+    opacity: 1;
+    transform: none;
+  }
+}

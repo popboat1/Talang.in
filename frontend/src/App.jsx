@@ -10,6 +10,10 @@ import TransactionPage from './pages/TransactionPage'
 import GroupNewPage from './pages/GroupNewPage'
 import ProfilePage from './pages/ProfilePage'
 import GroupAnalyticsPage from './pages/GroupAnalyticsPage'
+import TransactionHistoryPage from './pages/TransactionHistoryPage'
+import BalancePage from './pages/BalancePage'
+import SimplifyDebtPage from './pages/SimplifyDebtPage'
+import NotificationPage from './pages/NotificationPage'
 
 function App() {
   return (
@@ -20,7 +24,11 @@ function App() {
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/group" element={<GroupPage />} />
       <Route path="/group/:id" element={<GroupDetailPage />} />
+      <Route path="/transaction/history" element={<TransactionHistoryPage />} />
       <Route path="/transaction" element={<TransactionPage />} />
+      <Route path="/balance" element={<BalancePage />} />
+      <Route path="/simplify-debt" element={<SimplifyDebtPage />} />
+      <Route path="/notification" element={<NotificationPage />} />  
       <Route path="/report" element={<GroupAnalyticsPage />} />
       <Route path="/group/new" element={<GroupNewPage />} />
       <Route path="/profile" element={<ProfilePage />} />

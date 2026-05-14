@@ -31,3 +31,18 @@ body {
     transform: translateY(0) scale(1);
   }
 }
+
+/* Hilangkan icon mata bawaan browser pada input password */
+.login-password-input::-ms-reveal,
+.login-password-input::-ms-clear {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.login-password-input::-webkit-credentials-auto-fill-button,
+.login-password-input::-webkit-contacts-auto-fill-button {
+  visibility: hidden;
+  display: none !important;
+  pointer-events: none;
+}

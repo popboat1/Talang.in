@@ -1,102 +1,68 @@
-import { useState, useRef, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
-  X,
+  CheckCircle2,
+  Loader2,
   Sparkles,
   Wand2,
-  Loader2,
-  ReceiptText,
-  Wallet,
-  Calculator,
-  ArrowRight,
-  CheckCircle2,
-  MessageSquareText,
-  ClipboardCheck,
 } from 'lucide-react'
 
-const colors = {
-  navy: '#0B2D55',
-  navySoft: '#123F73',
-  background: '#F3F7FD',
-  card: '#FFFFFF',
-  surface: '#F8FBFF',
-  soft: '#EAF2FC',
-  softActive: '#DDEBFA',
-  border: '#DDE9F7',
-  textDark: '#0F2742',
-  textMuted: '#6B7890',
-  danger: '#EF4444',
-  success: '#16A34A',
-  successSoft: '#F0FDF4',
-}
+const formatRupiah = (amount) =>
+  `Rp${Number(Math.abs(amount || 0)).toLocaleString('id-ID')}`
 
-const formatRupiah = (amount) => `Rp ${Math.abs(amount).toLocaleString('id-ID')}`
-
-const examplePrompts = [
-  'Geprek 75 ribu buat 3 orang, aku yang bayar',
-  'Listrik kost 150rb, aku sama Risna yang nombok buat 5 orang',
-  'Makan bareng 120 ribu bertiga, saya bayar dulu',
-]
-
-const AIInputModal = ({ onClose, onAdd }) => {
-  const idRef = useRef(0)
-
-  useEffect(() => {
-    if (idRef.current === 0) idRef.current = Date.now()
-  }, [])
+const AIInputModal = ({ onClose, onAdd, embedded = false }) => {
+  const idRef = useRef(Date.now())
 
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
 
+  useEffect(() => {
+    if (idRef.current === 0) idRef.current = Date.now()
+  }, [])
+
   const handleParse = () => {
-    if (!text) return
+    if (!text.trim()) return
 
     setLoading(true)
 
     setTimeout(() => {
-      const amount = text.match(/\d+/)
-        ? parseInt(text.match(/\d+/)[0]) * 1000
-        : 25000
+      const amountMatch = text.match(/\d+/)
+      const amount = amountMatch ? Number(amountMatch[0]) * 1000 : 300000
 
-      const members = text.toLowerCase().includes('berdua')
-        ? 2
-        : text.toLowerCase().includes('bertiga')
-          ? 3
-          : text.toLowerCase().includes('berempat')
-            ? 4
-            : 2
+      const lower = text.toLowerCase()
 
-      const splitWith = ['Fatimah', 'Risna', 'Aulia', 'Dinda'].slice(0, members)
+      const members =
+        lower.includes('bertiga') || lower.includes('3')
+          ? ['Ayu', 'Raka', 'Nina']
+          : lower.includes('berdua') || lower.includes('2')
+            ? ['Ayu', 'Raka']
+            : ['Ayu', 'Raka', 'Nina']
 
-      const paidBy =
-        text.toLowerCase().includes('aku') || text.toLowerCase().includes('saya')
-          ? ['Fatimah']
-          : ['Fatimah', 'Risna'].slice(
-            0,
-            text.toLowerCase().includes('kami berdua') ? 2 : 1
-          )
+      const category =
+        lower.includes('makan') || lower.includes('kopi')
+          ? 'Makanan'
+          : lower.includes('transport')
+            ? 'Transport'
+            : lower.includes('wifi') || lower.includes('listrik')
+              ? 'Utilitas'
+              : 'Kebutuhan'
 
       setResult({
-        desc: text.includes('makan')
-          ? 'Makan bersama'
-          : text.includes('listrik')
-            ? 'Bayar listrik'
-            : text.includes('geprek')
-              ? 'Ayam geprek'
-              : 'Transaksi grup',
+        desc: lower.includes('wifi')
+          ? 'WiFi Bulanan'
+          : lower.includes('makan')
+            ? 'Makan bersama'
+            : 'Transaksi grup',
         amount,
         group: 'Kost Melati',
-        paidBy,
-        splitWith,
-        category:
-          text.includes('makan') || text.includes('geprek')
-            ? 'Makan'
-            : 'Kebutuhan',
-        perOrang: Math.round(amount / members),
+        paidBy: ['Ayu Septiani'],
+        splitWith: members,
+        category,
+        perOrang: Math.round(amount / members.length),
       })
 
       setLoading(false)
-    }, 1200)
+    }, 700)
   }
 
   const handleConfirm = () => {
@@ -109,518 +75,164 @@ const AIInputModal = ({ onClose, onAdd }) => {
       id: idRef.current++,
     })
 
-    onClose()
+    setText('')
+    setResult(null)
+
+    if (onClose) onClose()
+  }
+
+  const resetResult = () => {
+    setResult(null)
   }
 
   return (
     <div
-      className="fixed inset-0 z-[999] flex items-end justify-center bg-slate-950/45 px-0 backdrop-blur-sm sm:items-center sm:px-4"
-      onClick={onClose}
+      className={
+        embedded
+          ? 'w-full'
+          : 'fixed inset-0 z-[999] flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm'
+      }
+      onClick={embedded ? undefined : onClose}
     >
       <style>
         {`
-          @keyframes aiModalRise {
-            from {
-              opacity: 0;
-              transform: translateY(28px) scale(.98);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0) scale(1);
-            }
+          @keyframes aiRise {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
           }
 
-          @keyframes aiFloat {
-            0%, 100% {
-              transform: translateY(0);
-            }
-            50% {
-              transform: translateY(-6px);
-            }
-          }
-
-          @keyframes aiPulse {
-            0%, 100% {
-              opacity: .55;
-              transform: scale(1);
-            }
-            50% {
-              opacity: 1;
-              transform: scale(1.04);
-            }
-          }
-
-          .ai-modal-rise {
-            animation: aiModalRise .32s cubic-bezier(.2,.8,.2,1) both;
-          }
-
-          .ai-float {
-            animation: aiFloat 5.5s ease-in-out infinite;
-          }
-
-          .ai-pulse {
-            animation: aiPulse 2.4s ease-in-out infinite;
+          .ai-rise {
+            animation: aiRise .45s cubic-bezier(.2,.8,.2,1) both;
           }
         `}
       </style>
 
       <div
-        className="ai-modal-rise flex h-[94dvh] w-full flex-col overflow-hidden rounded-t-[32px] bg-white shadow-[0_30px_90px_rgba(0,0,0,.24)] sm:h-auto sm:max-h-[92vh] sm:max-w-5xl sm:rounded-[34px]"
+        className={
+          embedded
+            ? 'ai-rise grid w-full gap-5 lg:grid-cols-[minmax(0,1fr)_360px]'
+            : 'ai-rise grid max-h-[92vh] w-full max-w-5xl gap-5 overflow-y-auto rounded-[32px] bg-[#F3F7FD] p-4 shadow-[0_30px_90px_rgba(0,0,0,.24)] sm:p-6 lg:grid-cols-[minmax(0,1fr)_360px]'
+        }
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div
-          className="sticky top-0 z-20 border-b bg-white/95 px-5 py-5 backdrop-blur-xl sm:px-6"
-          style={{ borderColor: colors.border }}
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex min-w-0 items-start gap-3">
-              <div
-                className="ai-float flex h-12 w-12 shrink-0 items-center justify-center rounded-[20px] text-white shadow-[0_16px_35px_rgba(11,45,85,.2)]"
-                style={{ background: colors.navy }}
-              >
-                <Sparkles size={23} />
-              </div>
-
-              <div className="min-w-0">
-                <p
-                  className="mb-1 inline-flex rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em]"
-                  style={{ background: colors.soft, color: colors.navySoft }}
-                >
-                  Talang.in AI
-                </p>
-
-                <h2
-                  className="text-xl font-black tracking-[-0.035em] sm:text-2xl"
-                  style={{ color: colors.textDark }}
-                >
-                  Input Transaksi AI
-                </h2>
-
-                <p
-                  className="mt-1 max-w-xl text-xs font-medium leading-5 sm:text-sm"
-                  style={{ color: colors.textMuted }}
-                >
-                  Tulis transaksi dengan bahasa natural, lalu sistem akan bantu membaca nominal, pembayar, dan peserta split.
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={onClose}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl transition hover:bg-slate-100 active:scale-95"
-              style={{ color: colors.textMuted }}
-              aria-label="Tutup"
-            >
-              <X size={21} />
-            </button>
+        <section className="rounded-[28px] border-t-4 border-[#0B2D55] bg-white p-5 shadow-[0_18px_45px_rgba(11,45,85,.07)]">
+          <div className="mb-4 flex items-center gap-2">
+            <Sparkles size={20} className="text-[#0B2D55]" />
+            <h2 className="text-lg font-black text-[#0B2D55]">
+              AI Smart Input
+            </h2>
           </div>
-        </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto" style={{ background: colors.background }}>
-          <div className="grid gap-5 p-4 sm:p-6 lg:grid-cols-[1fr_380px]">
-            {/* Left content */}
-            <div className="space-y-5">
-              {/* Input */}
-              <section
-                className="rounded-[28px] border bg-white/92 p-4 shadow-[0_14px_38px_rgba(11,45,85,.06)] backdrop-blur-xl sm:p-5"
-                style={{ borderColor: colors.border }}
-              >
-                <div className="mb-5 flex items-center gap-3">
-                  <div
-                    className="flex h-11 w-11 items-center justify-center rounded-2xl"
-                    style={{ background: colors.soft, color: colors.navySoft }}
-                  >
-                    <MessageSquareText size={20} />
-                  </div>
+          <p className="mb-4 text-sm leading-6 text-[#6B7890]">
+            Ketik transaksi seperti chat biasa, Talang.in akan membantu membaca detailnya.
+          </p>
 
-                  <div>
-                    <h3 className="text-sm font-black" style={{ color: colors.textDark }}>
-                      Tulis Transaksi
-                    </h3>
-                    <p className="mt-1 text-xs font-medium" style={{ color: colors.textMuted }}>
-                      Gunakan kalimat santai seperti saat chat dengan teman.
-                    </p>
-                  </div>
-                </div>
+          <textarea
+            value={text}
+            onChange={(e) => {
+              setText(e.target.value)
+              setResult(null)
+            }}
+            placeholder="Contoh: Ayu bayar makan malam Rp300.000 untuk Ayu, Raka, dan Nina"
+            className="h-32 w-full resize-none rounded-2xl border border-[#DDE9F7] bg-[#F7F8FC] p-4 text-sm leading-6 text-[#0F2742] outline-none transition placeholder:text-[#8A94A6] focus:border-[#0B2D55] focus:ring-4 focus:ring-[#EAF2FC]"
+          />
 
-                <textarea
-                  rows={7}
-                  placeholder={
-                    'Contoh:\n"Geprek 75 ribu buat 3 orang, aku yang bayar"\n"Listrik kost 150rb, aku sama Risna yang nombok buat 5 orang"'
-                  }
-                  value={text}
-                  onChange={(e) => {
-                    setText(e.target.value)
-                    setResult(null)
-                  }}
-                  className="w-full resize-none rounded-[22px] border bg-white px-4 py-4 text-sm font-semibold leading-7 outline-none transition placeholder:text-slate-300 focus:ring-4"
-                  style={{
-                    borderColor: colors.border,
-                    color: colors.textDark,
-                    '--tw-ring-color': 'rgba(18, 63, 115, 0.12)',
-                  }}
-                />
-
-                <div
-                  className="mt-4 flex flex-col gap-3 rounded-2xl border px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
-                  style={{
-                    background: colors.surface,
-                    borderColor: colors.border,
-                  }}
-                >
-                  <div>
-                    <p className="text-xs font-black" style={{ color: colors.textDark }}>
-                      {text.length} karakter
-                    </p>
-                    <p className="mt-1 text-xs font-semibold" style={{ color: colors.textMuted }}>
-                      Gunakan tombol proses di bagian bawah setelah kalimat transaksi diisi.
-                    </p>
-                  </div>
-
-                  <span
-                    className="inline-flex w-fit rounded-full px-3 py-1 text-[11px] font-black"
-                    style={{
-                      background: text ? colors.soft : colors.surface,
-                      color: text ? colors.navySoft : colors.textMuted,
-                      border: `1px solid ${colors.border}`,
-                    }}
-                  >
-                    {text ? 'Siap diproses' : 'Belum ada input'}
-                  </span>
-                </div>
-              </section>
-
-              {/* Example prompts */}
-              <section
-                className="rounded-[28px] border bg-white/92 p-4 shadow-[0_14px_38px_rgba(11,45,85,.06)] backdrop-blur-xl sm:p-5"
-                style={{ borderColor: colors.border }}
-              >
-                <div className="mb-4 flex items-center justify-between gap-3">
-                  <div>
-                    <h3 className="text-sm font-black" style={{ color: colors.textDark }}>
-                      Contoh cepat
-                    </h3>
-                    <p className="mt-1 text-xs font-medium" style={{ color: colors.textMuted }}>
-                      Klik salah satu contoh untuk mengisi input otomatis.
-                    </p>
-                  </div>
-
-                  <div
-                    className="hidden h-10 w-10 items-center justify-center rounded-2xl sm:flex"
-                    style={{ background: colors.soft, color: colors.navySoft }}
-                  >
-                    <Sparkles size={18} />
-                  </div>
-                </div>
-
-                <div className="grid gap-2">
-                  {examplePrompts.map((prompt) => (
-                    <button
-                      key={prompt}
-                      onClick={() => {
-                        setText(prompt)
-                        setResult(null)
-                      }}
-                      className="rounded-2xl border bg-white px-4 py-3 text-left text-xs font-bold leading-5 transition hover:-translate-y-0.5 hover:shadow-sm active:scale-95"
-                      style={{
-                        color: colors.textDark,
-                        borderColor: colors.border,
-                      }}
-                    >
-                      “{prompt}”
-                    </button>
-                  ))}
-                </div>
-              </section>
-
-              {/* Loading */}
-              {loading && (
-                <section
-                  className="rounded-[28px] border bg-white/92 p-4 shadow-[0_14px_38px_rgba(11,45,85,.06)] backdrop-blur-xl sm:p-5"
-                  style={{ borderColor: colors.border }}
-                >
-                  <div className="mb-5 flex items-center gap-3">
-                    <div
-                      className="flex h-11 w-11 items-center justify-center rounded-2xl"
-                      style={{ background: colors.soft, color: colors.navySoft }}
-                    >
-                      <Loader2 size={20} className="animate-spin" />
-                    </div>
-
-                    <div>
-                      <h3 className="text-sm font-black" style={{ color: colors.textDark }}>
-                        Sedang membaca transaksi
-                      </h3>
-                      <p className="mt-1 text-xs font-medium" style={{ color: colors.textMuted }}>
-                        Sistem sedang mencoba mengenali nominal, peserta, dan pembayar.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    {[
-                      'Membaca kalimat transaksi',
-                      'Mengidentifikasi nominal',
-                      'Menentukan peserta split',
-                      'Menyiapkan preview hasil',
-                    ].map((step, index) => (
-                      <div
-                        key={step}
-                        className="flex items-center gap-3 rounded-2xl px-3 py-3"
-                        style={{ background: colors.surface }}
-                      >
-                        <span
-                          className="flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-black"
-                          style={{ background: colors.soft, color: colors.navySoft }}
-                        >
-                          {index + 1}
-                        </span>
-
-                        <span className="text-xs font-bold" style={{ color: colors.textMuted }}>
-                          {step}
-                        </span>
-
-                        <Loader2
-                          size={14}
-                          className="ml-auto animate-spin"
-                          style={{ color: colors.navySoft }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
-            </div>
-
-            {/* Right preview */}
-            <aside className="lg:sticky lg:top-5 lg:self-start">
-              <section
-                className="rounded-[30px] border bg-white/95 p-4 shadow-[0_18px_55px_rgba(11,45,85,.09)] backdrop-blur-xl sm:p-5"
-                style={{ borderColor: colors.border }}
-              >
-                <div className="mb-5 flex items-center gap-3">
-                  <div
-                    className="flex h-11 w-11 items-center justify-center rounded-2xl text-white"
-                    style={{ background: result ? colors.success : colors.navy }}
-                  >
-                    {result ? <ClipboardCheck size={20} /> : <Calculator size={20} />}
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-black" style={{ color: colors.textDark }}>
-                      {result ? 'Hasil Parsing AI' : 'Preview AI'}
-                    </h3>
-                    <p className="mt-1 text-xs font-medium" style={{ color: colors.textMuted }}>
-                      {result ? 'Cek kembali sebelum disimpan.' : 'Hasil akan muncul setelah diproses.'}
-                    </p>
-                  </div>
-                </div>
-
-                {!result ? (
-                  <div
-                    className="rounded-[24px] border border-dashed px-4 py-10 text-center"
-                    style={{ borderColor: colors.border, background: colors.surface }}
-                  >
-                    <div
-                      className="ai-pulse mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
-                      style={{ background: colors.soft, color: colors.navySoft }}
-                    >
-                      <Sparkles size={25} />
-                    </div>
-
-                    <h4 className="text-sm font-black" style={{ color: colors.textDark }}>
-                      Belum ada hasil
-                    </h4>
-
-                    <p className="mx-auto mt-2 max-w-xs text-xs font-medium leading-6" style={{ color: colors.textMuted }}>
-                      Tulis transaksi, lalu klik tombol proses untuk melihat detail split otomatis.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="rounded-2xl p-4" style={{ background: colors.surface }}>
-                      <div className="mb-2 flex items-center gap-2">
-                        <ReceiptText size={15} style={{ color: colors.navySoft }} />
-                        <p className="text-xs font-bold" style={{ color: colors.textMuted }}>
-                          Deskripsi
-                        </p>
-                      </div>
-                      <p className="text-base font-black" style={{ color: colors.textDark }}>
-                        {result.desc}
-                      </p>
-                      <p className="mt-2 text-xs font-semibold" style={{ color: colors.textMuted }}>
-                        {result.group} • {result.category}
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="rounded-2xl p-4" style={{ background: colors.surface }}>
-                        <div className="mb-2 flex items-center gap-2">
-                          <Wallet size={15} style={{ color: colors.navySoft }} />
-                          <p className="text-xs font-bold" style={{ color: colors.textMuted }}>
-                            Total
-                          </p>
-                        </div>
-                        <p className="text-lg font-black tracking-[-0.035em]" style={{ color: colors.textDark }}>
-                          {formatRupiah(result.amount)}
-                        </p>
-                      </div>
-
-                      <div className="rounded-2xl p-4" style={{ background: colors.soft }}>
-                        <div className="mb-2 flex items-center gap-2">
-                          <Calculator size={15} style={{ color: colors.navySoft }} />
-                          <p className="text-xs font-bold" style={{ color: colors.textMuted }}>
-                            Per orang
-                          </p>
-                        </div>
-                        <p className="text-lg font-black tracking-[-0.035em]" style={{ color: colors.navySoft }}>
-                          {formatRupiah(result.perOrang)}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="rounded-2xl p-4" style={{ background: colors.surface }}>
-                      <p className="mb-3 text-xs font-black uppercase tracking-[0.12em]" style={{ color: colors.textMuted }}>
-                        Yang nombok
-                      </p>
-
-                      <div className="flex flex-wrap gap-2">
-                        {result.paidBy.map((name) => (
-                          <span
-                            key={name}
-                            className="rounded-full px-3 py-1.5 text-xs font-black text-white"
-                            style={{ background: colors.navy }}
-                          >
-                            {name}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="rounded-2xl p-4" style={{ background: colors.surface }}>
-                      <p className="mb-3 text-xs font-black uppercase tracking-[0.12em]" style={{ color: colors.textMuted }}>
-                        Dibagi ke
-                      </p>
-
-                      <div className="flex flex-wrap gap-2">
-                        {result.splitWith.map((name) => (
-                          <span
-                            key={name}
-                            className="rounded-full border px-3 py-1.5 text-xs font-black"
-                            style={{
-                              background: '#FFFFFF',
-                              color: colors.navySoft,
-                              borderColor: colors.border,
-                            }}
-                          >
-                            {name}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="rounded-2xl bg-white p-3" style={{ border: `1px solid ${colors.border}` }}>
-                      <p className="mb-3 text-xs font-black uppercase tracking-[0.12em]" style={{ color: colors.textMuted }}>
-                        Yang perlu bayar
-                      </p>
-
-                      <div className="max-h-56 space-y-2 overflow-y-auto pr-1">
-                        {result.splitWith
-                          .filter((name) => !result.paidBy.includes(name))
-                          .map((name) => (
-                            <div
-                              key={name}
-                              className="flex items-center justify-between gap-3 rounded-2xl px-3 py-2"
-                              style={{ background: colors.surface }}
-                            >
-                              <div className="flex min-w-0 items-center gap-2">
-                                <span className="truncate text-xs font-black" style={{ color: colors.textDark }}>
-                                  {name}
-                                </span>
-
-                                <ArrowRight size={14} className="shrink-0" style={{ color: colors.textMuted }} />
-
-                                <span className="truncate text-xs font-semibold" style={{ color: colors.textMuted }}>
-                                  {result.paidBy.join(' & ')}
-                                </span>
-                              </div>
-
-                              <span className="shrink-0 text-xs font-black" style={{ color: colors.danger }}>
-                                {formatRupiah(result.perOrang)}
-                              </span>
-                            </div>
-                          ))}
-
-                        {result.splitWith.filter((name) => !result.paidBy.includes(name)).length === 0 && (
-                          <p
-                            className="rounded-2xl px-3 py-3 text-xs font-semibold leading-6"
-                            style={{ background: colors.surface, color: colors.textMuted }}
-                          >
-                            Semua peserta juga termasuk yang nombok.
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </section>
-            </aside>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div
-          className="sticky bottom-0 z-20 border-t bg-white/95 px-4 py-3 backdrop-blur-xl sm:px-6 sm:py-4"
-          style={{ borderColor: colors.border }}
-        >
-          <div className="mx-auto flex max-w-5xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs font-black" style={{ color: colors.textDark }}>
-                {result ? 'Hasil AI siap disimpan' : 'Masukkan kalimat transaksi'}
-              </p>
-              <p className="mt-1 text-xs font-medium" style={{ color: colors.textMuted }}>
-                {result
-                  ? 'Pastikan hasil parsing sudah sesuai sebelum konfirmasi.'
-                  : 'Isi kalimat transaksi, lalu proses dengan satu tombol di bawah ini.'}
-              </p>
-            </div>
-
-            {result ? (
-              <button
-                onClick={handleConfirm}
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-black text-white shadow-[0_16px_35px_rgba(22,163,74,.2)] transition hover:-translate-y-0.5 active:scale-[0.98] sm:w-auto sm:min-w-[240px] sm:px-8"
-                style={{ background: colors.success }}
-              >
-                <CheckCircle2 size={18} />
-                Konfirmasi & Simpan
-              </button>
+          <button
+            type="button"
+            onClick={handleParse}
+            disabled={loading || !text.trim()}
+            className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#476B9D] text-sm font-black text-white transition enabled:hover:-translate-y-0.5 enabled:hover:bg-[#0B2D55] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {loading ? (
+              <>
+                <Loader2 size={17} className="animate-spin" />
+                Membaca Transaksi...
+              </>
             ) : (
-              <button
-                onClick={handleParse}
-                disabled={loading || !text}
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-black text-white shadow-[0_16px_35px_rgba(11,45,85,.2)] transition enabled:hover:-translate-y-0.5 enabled:active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45 sm:w-auto sm:min-w-[240px] sm:px-8"
-                style={{ background: colors.navy }}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 size={18} className="animate-spin" />
-                    Memproses...
-                  </>
-                ) : (
-                  <>
-                    <Wand2 size={18} />
-                    Proses dengan AI
-                  </>
-                )}
-              </button>
+              <>
+                <Wand2 size={17} />
+                Baca Transaksi
+              </>
             )}
+          </button>
+
+          <div className="mt-4 rounded-2xl bg-[#F8FBFF] p-4">
+            <p className="text-xs font-black uppercase tracking-[0.12em] text-[#6B7890]">
+              Tips
+            </p>
+            <p className="mt-2 text-sm leading-6 text-[#6B7890]">
+              Sertakan nominal, pembayar, dan anggota agar hasil analisis lebih akurat.
+            </p>
           </div>
-        </div>
+        </section>
+
+        <section className="rounded-[28px] bg-white p-5 shadow-[0_18px_45px_rgba(11,45,85,.07)]">
+          <h2 className="mb-4 text-sm font-black uppercase tracking-[0.12em] text-[#475467]">
+            Hasil Analisis AI
+          </h2>
+
+          {result ? (
+            <div className="space-y-3">
+              <PreviewRow label="Pembayar" value={result.paidBy.join(', ')} />
+              <PreviewRow label="Nominal" value={formatRupiah(result.amount)} />
+              <PreviewRow label="Kategori" value={result.category} badge />
+              <PreviewRow label="Anggota" value={result.splitWith.join(', ')} />
+              <PreviewRow label="Metode Split" value="Bagi rata" />
+
+              <div className="rounded-2xl bg-[#0B2D55] p-4 text-white">
+                <p className="text-xs font-bold text-white/60">Estimasi per orang</p>
+                <p className="mt-1 text-2xl font-black tracking-[-0.04em]">
+                  {formatRupiah(result.perOrang)}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={resetResult}
+                  className="rounded-2xl border border-[#0B2D55] px-4 py-3 text-sm font-black text-[#0B2D55] transition hover:bg-[#EAF2FC]"
+                >
+                  Reset
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleConfirm}
+                  className="flex items-center justify-center gap-2 rounded-2xl bg-[#0B2D55] px-4 py-3 text-sm font-black text-white transition hover:-translate-y-0.5"
+                >
+                  <CheckCircle2 size={17} />
+                  Gunakan Hasil
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-2xl bg-[#F8FBFF] p-5 text-center">
+              <Sparkles className="mx-auto text-[#0B2D55]" size={28} />
+              <p className="mt-3 text-sm font-black text-[#0F2742]">
+                Belum ada hasil
+              </p>
+              <p className="mt-2 text-sm leading-6 text-[#6B7890]">
+                Tulis transaksi lalu klik tombol baca transaksi.
+              </p>
+            </div>
+          )}
+        </section>
       </div>
     </div>
   )
 }
+
+const PreviewRow = ({ label, value, badge }) => (
+  <div className="flex items-center justify-between border-b border-[#E5EAF2] pb-3 text-sm last:border-b-0">
+    <span className="text-[#6B7890]">{label}</span>
+    <span
+      className={`max-w-[190px] text-right font-black text-[#0B2D55] ${
+        badge ? 'rounded-full bg-[#FFF2E2] px-3 py-1 text-xs text-[#9A5B12]' : ''
+      }`}
+    >
+      {value}
+    </span>
+  </div>
+)
 
 export default AIInputModal
