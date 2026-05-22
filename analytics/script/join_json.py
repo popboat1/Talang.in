@@ -24,7 +24,7 @@ def join_jsons(file1_path, file2_path, output_path):
 
 if __name__ == '__main__':
     join_jsons(
-        'D:/Python/Talang.in/analytics/outputs/talangin_synthetic_templates.json', 
-        'D:/Python/Talang.in/analytics/outputs/addition.json', 
-        'D:/Python/Talang.in/analytics/outputs/combined_dataset.json'
+        'D:/Python/Talang.in/analytics/outputs/combined_dataset.json', 
+        'D:/Python/Talang.in/analytics/outputs/addition2.json', 
+        'D:/Python/Talang.in/analytics/outputs/final_dataset.json'
     )
