@@ -99,14 +99,13 @@ def extract_item_candidates(text: str):
 
     items = []
 
-    # Pattern untuk menangkap item setelah kata tertentu.
     patterns = [
-        r"bayar\s+(.+?)(?=\s+\d|\s+rp|\s+untuk|\s+buat|$)",
-        r"beli\s+(.+?)(?=\s+\d|\s+rp|\s+untuk|\s+buat|$)",
-        r"tagihan\s+(.+?)(?=\s+\d|\s+rp|\s+untuk|\s+buat|$)",
-        r"nota\s+(.+?)(?=\s+\d|\s+rp|\s+untuk|\s+buat|$)",
-        r"rekap\s+(.+?)(?=\s+\d|\s+rp|\s+untuk|\s+buat|$)",
-        r"billing\s+(.+?)(?=\s+\d|\s+rp|\s+untuk|\s+buat|$)",
+        r"bayar[:\s\-]+(.+?)(?=\s+\d|\s+rp|\s+untuk|\s+buat|$)",
+        r"beli[:\s\-]+(.+?)(?=\s+\d|\s+rp|\s+untuk|\s+buat|$)",
+        r"tagihan[:\s\-]+(.+?)(?=\s+\d|\s+rp|\s+untuk|\s+buat|$)",
+        r"nota[:\s\-]+(.+?)(?=\s+\d|\s+rp|\s+untuk|\s+buat|$)",
+        r"rekap[:\s\-]+(.+?)(?=\s+\d|\s+rp|\s+untuk|\s+buat|$)",
+        r"billing[:\s\-]+(.+?)(?=\s+\d|\s+rp|\s+untuk|\s+buat|$)",
     ]
 
     for pattern in patterns:
@@ -116,20 +115,16 @@ def extract_item_candidates(text: str):
             if not candidate:
                 continue
 
-            # Pecah jika ada beberapa item yang dipisahkan "dan" atau koma.
-            parts = re.split(r"\s+dan\s+|,", candidate)
-
+            parts = re.split(r"\s+dan\s+|,|\n", candidate)
             cursor = match.start(1)
 
             for part in parts:
-                item_name = part.strip(" .,-:")
+                item_name = part.strip(" .,-:*")
 
-                if not item_name:
+                if not item_name or len(item_name) < 2:
                     continue
 
-                # Cari posisi item di teks asli.
                 start = text.lower().find(item_name.lower(), cursor)
-
                 if start == -1:
                     start = cursor
 
@@ -141,7 +136,6 @@ def extract_item_candidates(text: str):
                     "start": start,
                     "end": end,
                 })
-
                 cursor = end
 
     return items

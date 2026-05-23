@@ -22,7 +22,12 @@ def get_predictor():
     global _predictor
 
     if _predictor is None:
-        _predictor = NERPredictor()
+        _predictor = NERPredictor(
+            model_path="models/bill_ner_model_28k.keras", # Path file weights baru Anda
+            format_type="keras",                            # Gunakan "keras" jika Anda meload full bundle .keras
+            config_path="outputs/training_config_28k.json",    # Path config baru jika hyperparameter berubah
+            vocab_dir="outputs/vocabs"                        # Path folder vocab
+        )
 
     return _predictor
 
