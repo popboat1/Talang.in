@@ -43,6 +43,18 @@ TEST_SUITE = {
     "Case 10: Multi-line Break Structure (WhatsApp Copy-Paste)": {
         "text": "Michael bayar:\n- Nasi uduk 25k buat Dani\n- Es jeruk 10k buat Sinta\nTotal tax 3k",
         "group_members": GROUP_MEMBERS
+    },
+    'Case 11: Custom case 11': {
+        'text': 'Risna bayar geprek total 250rb, bagian Fatimah 75rb, bagian Peronika 75rb, Risna yang bayar',
+        'group_members': ['Risna', 'Fatimah', 'Peronika']
+    },
+    'Case 12: Custom Case 12': {
+        'text': 'Michael beli ayam geprek 12rb, sinta es teh 5rb',
+        'group_members': GROUP_MEMBERS
+    },
+    'Case 13: Custom Case 13': {
+        'text': '- Michael: ayam geprek 12rb\n - Sinta koka kola: 16rb\n - Dani: ayam geprek 11rb',
+        'group_members': GROUP_MEMBERS
     }
 }
 

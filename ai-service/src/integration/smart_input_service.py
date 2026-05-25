@@ -46,13 +46,14 @@ def merge_missing_group_members(text, entities, group_members):
     for member in group_members:
         member_lower = member.lower()
         
-        # Gunakan regex finditer untuk mencari semua indeks kemunculan nama
         for match in re.finditer(rf'\b{re.escape(member_lower)}\b', lower_text):
             start = match.start()
             end = match.end()
 
-            # Pastikan posisi ini belum dicover oleh entitas yang sudah ada
-            is_covered = any(e.get("start", 0) <= start < e.get("end", 0) for e in merged_entities)
+            is_covered = any(
+                e.get("label") == "PERSON" and e.get("start", 0) <= start < e.get("end", 0) 
+                for e in merged_entities
+            )
             
             if not is_covered:
                 merged_entities.append({
@@ -77,40 +78,35 @@ def analyze_smart_input(text, entities=None, group_members=None):
     5. Ubah entities menjadi struktur transaksi Talang.in.
     """
     group_members = group_members or []
-    entities = entities or []
+    entities = list(entities or [])
 
-    # Jika entities tidak dikirim, pakai model NER asli
     if not entities:
         try:
             predictor = get_predictor()
             prediction = predictor.predict_entities(text)
             entities = prediction.get("entities", [])
         except Exception as error:
-            # Fallback jika model gagal diload atau inference error
-            print(f"Model inference failed, using rule-based fallback: {error}")
+            print(f"Model inference failed: {error}")
 
-            entities = predict_entities_rule_based(
-                text=text,
-                group_members=group_members,
-            )
+    fallback_entities = predict_entities_rule_based(text, group_members)
+    for f_ent in fallback_entities:
+        is_overlapping = any(
+            max(f_ent["start"], m["start"]) < min(f_ent["end"], m["end"])
+            for m in entities
+        )
+        if not is_overlapping:
+            entities.append(f_ent)
 
-    # Tambahkan anggota grup yang muncul di text tetapi terlewat oleh model
-    entities = merge_missing_group_members(
-        text=text,
-        entities=entities,
-        group_members=group_members,
-    )
+    entities = sorted(entities, key=lambda x: x["start"])
 
-    # Ubah entity menjadi format transaksi Talang.in
+    entities = merge_missing_group_members(text, entities, group_members)
     result = parse_entities_to_transaction(text, entities, group_members=group_members)
 
-    # Cocokkan format nama peserta dengan nama asli dari group_members
     if group_members:
         result = match_with_group_members(result, group_members)
 
     result["status"] = "success"
     result["message"] = "AI Smart Input berhasil diproses"
-
     return result
 
 

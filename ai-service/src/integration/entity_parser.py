@@ -10,7 +10,6 @@ TEXTUAL_NUMBERS = {
 def parse_textual_price(text: str) -> int:
     """Mengubah ekspresi harga tekstual seperti 'limabelas rebu' menjadi integer."""
     clean_text = text.lower().replace(" ", "")
-    
     base_val = 0
     for word, num in TEXTUAL_NUMBERS.items():
         if clean_text.startswith(word):
@@ -19,16 +18,12 @@ def parse_textual_price(text: str) -> int:
                 base_val = num + 10
             break
             
-    if "belas" in clean_text and base_val < 10:
-        base_val += 10
-    elif "puluh" in clean_text and base_val < 10:
-        base_val *= 10
+    if "belas" in clean_text and base_val < 10: base_val += 10
+    elif "puluh" in clean_text and base_val < 10: base_val *= 10
 
     multiplier = 1
-    if any(k in clean_text for k in ["ribu", "rebu", "rb", "k"]):
-        multiplier = 1000
-    elif any(k in clean_text for k in ["juta", "jt"]):
-        multiplier = 1000000
+    if any(k in clean_text for k in ["ribu", "rebu", "rb", "k"]): multiplier = 1000
+    elif any(k in clean_text for k in ["juta", "jt"]): multiplier = 1000000
 
     return base_val * multiplier if base_val > 0 else normalize_price(text)
 
@@ -40,8 +35,7 @@ def get_entities_by_label(entities, label):
 def unique_values(values):
     result = []
     for value in values:
-        if value and value not in result:
-            result.append(value)
+        if value and value not in result: result.append(value)
     return result
 
 
@@ -51,7 +45,7 @@ def classify_category(title):
         "kopi", "ayam", "nasi", "mie", "pizza", "burger", "roti", "piza",
         "susu", "teh", "matcha", "coklat", "kue", "cake", "biscoff", "ramen",
         "spaghetti", "cireng", "kambing", "ikan", "soto", "bakso", "katsu",
-        "es", "jus", "steak", "rice", "latte", "boba", "goreng", "kola", "sushi", "sate", "martabak"
+        "es", "jus", "steak", "rice", "latte", "boba", "goreng", "kola", "sushi", "sate", "martabak", "geprek"
     ]
     if any(k in text for k in food_keywords): return "Makanan"
     if any(k in text for k in ["gojek", "grab", "taxi", "bensin", "parkir"]): return "Transportasi"
@@ -88,26 +82,19 @@ def calculate_itemized_split(items, participants):
 
 
 def clean_item_title(title: str, group_members: list) -> str:
-    """Membersihkan verb transaksi dan nama anggota yang menempel pada judul item."""
-    cleaned = title
-    
+    cleaned = re.sub(r'\b(bayar|bayer|beli|talangin|trs|terus|ada|total)\b', '', title, flags=re.IGNORECASE)
     for member in group_members:
-        cleaned = re.sub(rf'^{re.escape(member)}\s+', '', cleaned, flags=re.IGNORECASE)
         cleaned = re.sub(rf'\s+{re.escape(member)}$', '', cleaned, flags=re.IGNORECASE)
-        
-    cleaned = re.sub(r'\b(bayar|bayer|beli|talangin|trs|terus|ada|total)\b', '', cleaned, flags=re.IGNORECASE)
-    
+        cleaned = re.sub(rf'^{re.escape(member)}\s+', '', cleaned, flags=re.IGNORECASE)
     return re.sub(r'\s+', ' ', cleaned).strip(" :,.-")
 
 
 def parse_entities_to_transaction(text, entities, group_members=None):
     group_members = group_members or []
-    
     member_case_map = {m.lower(): m for m in group_members}
 
     from .rule_based_ner import extract_item_candidates
     regex_items = extract_item_candidates(text)
-    
     model_items = get_entities_by_label(entities, "ITEM")
     combined_items_pool = list(model_items)
     
@@ -127,10 +114,8 @@ def parse_entities_to_transaction(text, entities, group_members=None):
         if re.search(rf'\b{re.escape(p)}\b\s*(?:bayar|bayer|beli|talangin)', text, re.IGNORECASE):
             global_paid_by = p
             break
-    if global_paid_by == "Unknown" and group_members:
-        global_paid_by = group_members[0]
-    elif global_paid_by == "Unknown" and all_global_persons:
-        global_paid_by = all_global_persons[0]
+    if global_paid_by == "Unknown" and group_members: global_paid_by = group_members[0]
+    elif global_paid_by == "Unknown" and all_global_persons: global_paid_by = all_global_persons[0]
 
     valid_items = []
     global_modifiers = {"tax": 0, "discount": 0}
@@ -138,110 +123,163 @@ def parse_entities_to_transaction(text, entities, group_members=None):
 
     item_entities = sorted(combined_items_pool, key=lambda e: e.get("start", 0))
 
-    if item_entities:
-        for i, current_item in enumerate(item_entities):
-            item_start = current_item["start"]
-            item_end_boundary = item_entities[i + 1]["start"] if i + 1 < len(item_entities) else len(text)
-            item_segment_text = text[item_start:item_end_boundary]
+    # Helper: cek apakah harga berada di konteks modifier (tax/diskon)
+    def _is_modifier_price(price_ent):
+        p_idx = price_ent["start"]
+        surrounding = text[max(0, p_idx - 15):min(len(text), p_idx + 10)].lower()
+        return any(k in surrounding for k in ["diskon", "promo", "potongan", "discount", "tax", "pajak", "service", "charge"])
 
-            left_context = text[max(0, item_start - 15):item_start]
-            match_prefix = re.search(r'\b(nasi|mie|es|jus|roti|matcha|koka|pizza|paket)\b\s*$', left_context, re.IGNORECASE)
+    # Non-modifier secondary prices — menentukan apakah Case 11 relevan
+    non_modifier_secondary_prices = [p for p in price_entities[1:] if not _is_modifier_price(p)]
+
+    # 1. Penanganan Asymmetric Breakdown Tunggal (Case 11)
+    # Hanya aktif jika ada harga sekunder non-modifier (bukan tax/diskon)
+    if len(item_entities) == 1 and len(price_entities) > 1 and len(non_modifier_secondary_prices) > 0:
+        current_item = item_entities[0]
+        extended_name = current_item["text"]
+        
+        left_context = text[max(0, current_item["start"] - 15):current_item["start"]]
+        match_prefix = re.search(r'\b(nasi|mie|es|jus|roti|matcha|koka|pizza|paket|ayam)\b\s*$', left_context, re.IGNORECASE)
+        if match_prefix:
+            extended_name = f"{match_prefix.group(1)} {extended_name}"
+        extended_name = clean_item_title(extended_name, group_members)
+
+        total_header_price = parse_textual_price(price_entities[0]["text"])
+        assigned_price_starts.add(price_entities[0]["start"])
+        
+        individual_shares = []
+        local_persons = [{"text": member_case_map.get(e["text"].lower(), e["text"]), "start": e["start"]} for e in person_entities]
+
+        for price_ent in price_entities[1:]:
+            # Lewati harga yang merupakan modifier global (tax/diskon) — biarkan Step 3 yang menangani
+            if _is_modifier_price(price_ent):
+                continue
+
+            p_idx = price_ent["start"]
+            price_val = parse_textual_price(price_ent["text"])
             
-            if match_prefix:
-                extended_name = f"{match_prefix.group(1)} {current_item['text']}"
-                actual_segment_start = text.find(match_prefix.group(1), max(0, item_start - 15))
-            else:
-                extended_name = current_item["text"]
-                actual_segment_start = item_start
+            preceding_persons = [p for p in local_persons if p["start"] < p_idx]
+            closest_person = max(preceding_persons, key=lambda x: x["start"])["text"] if preceding_persons else min(local_persons, key=lambda x: abs(x["start"] - p_idx))["text"]
+            
+            if closest_person:
+                individual_shares.append({"name": closest_person, "amount": price_val})
+                assigned_price_starts.add(price_ent["start"])
 
+        total_allocated = sum(s["amount"] for s in individual_shares)
+        remainder_amount = total_header_price - total_allocated
+        
+        for share in individual_shares:
+            valid_items.append({"name": f"{extended_name} ({share['name']})", "amount": share["amount"], "members": [share["name"]], "paidBy": global_paid_by})
+        if remainder_amount > 0:
+            valid_items.append({"name": f"{extended_name} ({global_paid_by})", "amount": remainder_amount, "members": [global_paid_by], "paidBy": global_paid_by})
+
+    # 2. Penanganan Standar Multi-Item Menggunakan Pembatasan Proksimitas Sekuensial
+    else:
+        for idx, current_item in enumerate(item_entities):
+            item_start = current_item["start"]
+            next_item_start = item_entities[idx + 1]["start"] if idx + 1 < len(item_entities) else len(text)
+            prev_item_end = item_entities[idx - 1]["end"] if idx > 0 else 0
+
+            # Deteksi Teks Window
+            left_context = text[max(prev_item_end, item_start - 15):item_start]
+            match_prefix = re.search(r'\b(nasi|mie|es|jus|roti|matcha|koka|pizza|paket|ayam)\b\s*$', left_context, re.IGNORECASE)
+            
+            actual_segment_start = text.find(match_prefix.group(1), max(prev_item_end, item_start - 15)) if match_prefix else item_start
+            extended_name = f"{match_prefix.group(1)} {current_item['text']}" if match_prefix else current_item["text"]
             extended_name = clean_item_title(extended_name, group_members)
 
-            local_multipliers = [
-                m for m in multiplier_entities
-                if max(0, actual_segment_start - 12) <= m["start"] <= item_end_boundary
-            ]
-            quantity = 1
-            if local_multipliers:
-                m_ent = local_multipliers[0]
-                digits = re.findall(r'\d+', m_ent["text"])
-                if digits: quantity = int(digits[0])
-                if m_ent["start"] < item_start and m_ent["text"] not in extended_name:
-                    extended_name = f"{m_ent['text']} {extended_name}"
+            # Batas Window Konsumen & Harga
+            search_window_start = actual_segment_start
+            search_window_end = next_item_start
 
-            segment_text_full = text[actual_segment_start:item_end_boundary]
-
-            item_paid_by = global_paid_by
-            lookback_context = text[max(0, actual_segment_start - 35):current_item["end"]]
-            for p in group_members:
-                if re.search(rf'\b{re.escape(p)}\b\s*(?:bayar|bayer|beli|talangin)', lookback_context, re.IGNORECASE):
-                    item_paid_by = p
-
-            local_prices = [
-                p for p in price_entities 
-                if actual_segment_start <= p["start"] <= item_end_boundary
-            ]
-            
+            # Hubungkan Harga Terdekat
+            local_prices = [p for p in price_entities if search_window_start <= p["start"] <= search_window_end]
             item_amount = 0
             if local_prices:
                 price_ent = local_prices[0]
-                assigned_price_starts.add(price_ent["start"])
                 item_amount = parse_textual_price(price_ent["text"])
-                
-                is_unit_price = "@" in text[max(actual_segment_start, price_ent["start"] - 4):price_ent["start"]]
-                if is_unit_price: item_amount *= quantity
+                assigned_price_starts.add(price_ent["start"])
 
-            exclude_match = re.search(r'\b(kecuali|tanpa)\b', segment_text_full, re.IGNORECASE)
-            
+            # Hubungkan Multiplier / Kuantitas
+            local_multipliers = [m for m in multiplier_entities if search_window_start <= m["start"] <= search_window_end]
+            quantity = 1
+            if local_multipliers:
+                digits = re.findall(r'\d+', local_multipliers[0]["text"])
+                if digits: quantity = int(digits[0])
+                if "@" in text[max(0, local_prices[0]["start"] - 4):local_prices[0]["start"]] if local_prices else False:
+                    item_amount *= quantity
+                if local_multipliers[0]["start"] < item_start and local_multipliers[0]["text"] not in extended_name:
+                    extended_name = f"{local_multipliers[0]['text']} {extended_name}"
+
+            # Hubungkan Payer Segmen — hanya update jika nama diikuti kata kerja bayar/beli
+            item_paid_by = global_paid_by
+            for p in group_members:
+                if re.search(rf'\b{re.escape(p)}\b\s*(?:bayar|bayer|beli|talangin)', text[prev_item_end:item_start], re.IGNORECASE):
+                    item_paid_by = p
+
+            # Hubungkan Konsumen Segmen Lokal
+            # Window diperluas ke prev_item_end agar nama yang muncul tepat sebelum
+            # item (pola "Sinta es teh" atau "- Dani: ayam geprek") bisa tertangkap
             local_persons = []
             for e in person_entities:
-                if actual_segment_start <= e["start"] <= item_end_boundary:
-                    std_name = member_case_map.get(e["text"].lower(), e["text"])
-                    local_persons.append({"text": std_name, "start": e["start"]})
+                if prev_item_end <= e["start"] <= search_window_end:
+                    local_persons.append({"text": member_case_map.get(e["text"].lower(), e["text"]), "start": e["start"]})
 
-            has_assignment_keyword = bool(re.search(r'\b(untuk|buat|bagi|ke)\b', segment_text_full, re.IGNORECASE))
+            exclude_match = re.search(r'\b(kecuali|tanpa)\b', text[search_window_start:search_window_end], re.IGNORECASE)
+            has_assignment_keyword = bool(re.search(r'\b(untuk|buat|bagi|ke|bagian|jatah)\b', text[search_window_start:search_window_end], re.IGNORECASE))
 
             if exclude_match:
-                exclude_idx = actual_segment_start + exclude_match.start()
-                excluded_names = {p["text"].lower() for p in local_persons if p["start"] > exclude_idx}
-                baseline_pool = group_members if group_members else all_global_persons
-                item_members = [m for m in baseline_pool if m.lower() not in excluded_names]
-            elif has_assignment_keyword and local_persons:
-                item_members = []
-                for p in local_persons:
-                    if p["text"] in extended_name:
-                        pre_text = text[max(0, p["start"]-10):p["start"]].lower()
-                        if not any(k in pre_text for k in ["untuk", "buat", "bagi", "ke"]):
-                            continue
-                    item_members.append(p["text"])
-                item_members = unique_values(item_members)
-                
-                if len(item_members) > 1 and item_paid_by in item_members:
-                    payer_pos = text.find(item_paid_by, actual_segment_start)
-                    if payer_pos < text.find(current_item["text"], actual_segment_start) and not re.search(rf'\b{item_paid_by}\b', item_segment_text, re.IGNORECASE):
-                        item_members = [m for m in item_members if m != item_paid_by]
+                exclude_global_idx = search_window_start + exclude_match.start()
+                excluded_names = {p["text"].lower() for p in local_persons if p["start"] > exclude_global_idx}
+                item_members = [m for m in (group_members if group_members else all_global_persons) if m.lower() not in excluded_names]
+            elif has_assignment_keyword:
+                keyword_match = re.search(r'\b(untuk|buat|bagi|ke|bagian|jatah)\b', text[search_window_start:search_window_end], re.IGNORECASE)
+                keyword_global_idx = search_window_start + keyword_match.start()
+                item_members = unique_values([p["text"] for p in local_persons if p["start"] > keyword_global_idx])
+                if not item_members:
+                    item_members = group_members if group_members else all_global_persons
             else:
-                item_members = group_members if group_members else (all_global_persons if all_global_persons else [item_paid_by])
+                # Kepemilikan Mandiri Implisit (Sinta es teh -> Sinta sendiri)
+                preceding_persons = [p for p in local_persons if p["start"] <= item_start]
+                is_standalone = False
+                
+                if preceding_persons:
+                    closest_p = max(preceding_persons, key=lambda x: x["start"])
+                    
+                    start_idx = closest_p["start"] + len(closest_p["text"])
+                    end_idx = max(start_idx, actual_segment_start) 
+                    between_text = text[start_idx:end_idx].lower()
+                    
+                    item_text_lower = current_item["text"].lower()
+                    transaction_keywords = ["bayar", "bayer", "beliin", "talangin", "bayarin"]
+                    
+                    has_transaction_verb = any(
+                        verb in between_text or verb in item_text_lower 
+                        for verb in transaction_keywords
+                    )
+                    
+                    # Jika tidak ada kata transaksi, ini adalah pesanan mandiri murni
+                    if not has_transaction_verb:
+                        is_standalone = True
+                
+                if is_standalone:
+                    item_members = [closest_p["text"]]
+                else:
+                    item_members = group_members if group_members else all_global_persons
 
-            if item_amount >= 0 and extended_name:
-                valid_items.append({
-                    "name": extended_name,
-                    "amount": item_amount,
-                    "members": item_members,
-                    "paidBy": item_paid_by
-                })
+            if extended_name:
+                valid_items.append({"name": extended_name, "amount": item_amount, "members": item_members, "paidBy": item_paid_by})
 
+    # 3. Ambil Modifikator Global Sisa (Tax / Diskon)
     for p_ent in price_entities:
         if p_ent["start"] not in assigned_price_starts:
             p_idx = p_ent["start"]
-            surrounding_text = text[max(0, p_idx - 12):min(len(text), p_idx + 6)].lower()
+            surrounding_text = text[max(0, p_idx - 15):min(len(text), p_idx + 10)].lower()
             modifier_val = parse_textual_price(p_ent["text"])
-            
-            if any(k in surrounding_text for k in ["diskon", "promo", "potongan", "discount"]):
-                global_modifiers["discount"] += modifier_val
-            elif any(k in surrounding_text for k in ["tax", "pajak", "service", "charge"]):
-                global_modifiers["tax"] += modifier_val
+            if any(k in surrounding_text for k in ["diskon", "promo", "potongan", "discount"]): global_modifiers["discount"] += modifier_val
+            elif any(k in surrounding_text for k in ["tax", "pajak", "service", "charge"]): global_modifiers["tax"] += modifier_val
 
-    # Terapkan perhitungan akhir proporsional 
+    # 4. Distribusi Nominal Akhir Pas Berimbang
     final_group_pool = group_members if group_members else all_global_persons
     if valid_items:
         split_method = "itemized" if len(valid_items) > 1 else "equal"
@@ -252,8 +290,7 @@ def parse_entities_to_transaction(text, entities, group_members=None):
         if base_total_amount > 0 and net_modifier != 0:
             allocated_modifier_total = 0
             for idx, item in enumerate(valid_items):
-                if idx == len(valid_items) - 1:
-                    item["amount"] += (net_modifier - allocated_modifier_total)
+                if idx == len(valid_items) - 1: item["amount"] += (net_modifier - allocated_modifier_total)
                 else:
                     proportion = item["amount"] / base_total_amount
                     allocated = int(net_modifier * proportion)
@@ -272,12 +309,7 @@ def parse_entities_to_transaction(text, entities, group_members=None):
     category = classify_category(title)
 
     return {
-        "title": title,
-        "amount": global_amount,
-        "paidBy": global_paid_by,
-        "category": category,
-        "splitMethod": split_method,
-        "participants": participant_amounts,
-        "items": valid_items,
-        "rawEntities": sorted_entities,
+        "title": title, "amount": global_amount, "paidBy": global_paid_by,
+        "category": category, "splitMethod": split_method,
+        "participants": participant_amounts, "items": valid_items, "rawEntities": sorted_entities,
     }
