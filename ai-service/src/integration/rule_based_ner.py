@@ -4,7 +4,9 @@ import re
 # Pattern untuk mendeteksi harga informal.
 # Ini dipakai sebagai fallback jika model NER belum menangkap entity tertentu.
 PRICE_PATTERN = re.compile(
-    r"(rp\s*)?\d+([.,]\d+)?\s*(k|rb|ribu|rebu|jt|juta|j)?(-an)?|"
+    r"\brp\.?\s*\d+(?:[.,]\d+)*\b|"                 # rp 45.500, rp15000
+    r"\b\d+(?:[.,]\d+)*\s*(?:k|rb|ribu|rebu|jt|juta)\b|" # 150k, 150 rb
+    r"\b\d{3,}(?:[.,]\d{3})*\b|"                     # 15000, 45.500
     r"goceng|seceng|cenggo|noceng|ceban|seceban|noban|cepek|satu cepek",
     re.IGNORECASE,
 )
@@ -32,55 +34,50 @@ def predict_entities_rule_based(text: str, group_members=None):
       {"text": "...", "label": "PERSON", "start": 0, "end": 3}
     ]
     """
-
     entities = []
     group_members = group_members or []
 
-    # Deteksi PERSON berdasarkan nama anggota grup.
-    # Ini membantu jika model melewatkan nama seperti Raka/Nina.
     for member in group_members:
         pattern = re.compile(rf"\b{re.escape(member)}\b", re.IGNORECASE)
-
         for match in pattern.finditer(text):
             entities.append({
-                "text": match.group(),
-                "label": "PERSON",
-                "start": match.start(),
-                "end": match.end(),
+                "text": match.group(), "label": "PERSON",
+                "start": match.start(), "end": match.end(),
             })
 
-    # Deteksi PRICE berdasarkan regex harga informal.
+    bullet_pattern = re.compile(
+        r"(?:^|\n)\s*[\-\*]\s*(?:(?P<name>[a-zA-Z]+)\s+pesen\s+)?(?:(?P<qty>\d+)\s+)?(?P<item>[a-zA-Z\s]+?)(?=\s+(?:rp\.?|@)?\s*\d|\s+untuk|\s+buat|$)",
+        re.IGNORECASE
+    )
+    for match in bullet_pattern.finditer(text):
+        item_text = match.group("item").strip(" .,-:*")
+        if item_text and len(item_text) >= 2:
+            entities.append({
+                "text": item_text, "label": "ITEM",
+                "start": match.start("item"), "end": match.end("item"),
+            })
+        # Ubah prefix angka list menjadi MULTIPLIER resmi
+        if match.group("qty"):
+            entities.append({
+                "text": match.group("qty"), "label": "MULTIPLIER",
+                "start": match.start("qty"), "end": match.end("qty"),
+            })
+
+    # 3. Deteksi PRICE
     for match in PRICE_PATTERN.finditer(text):
-        raw_price = match.group().strip()
-
-        if not raw_price:
-            continue
-
         entities.append({
-            "text": raw_price,
-            "label": "PRICE",
-            "start": match.start(),
-            "end": match.end(),
+            "text": match.group().strip(), "label": "PRICE",
+            "start": match.start(), "end": match.end(),
         })
 
-    # Deteksi MULTIPLIER seperti x4, 5 orang, 6 kepala.
+    # 4. Deteksi MULTIPLIER Suffix (x5, dsb)
     for match in MULTIPLIER_PATTERN.finditer(text):
         entities.append({
-            "text": match.group(),
-            "label": "MULTIPLIER",
-            "start": match.start(),
-            "end": match.end(),
+            "text": match.group(), "label": "MULTIPLIER",
+            "start": match.start(), "end": match.end(),
         })
 
-    # Deteksi ITEM sederhana dari pola kalimat.
-    # Ini hanya fallback, nanti tetap lebih utama dari model NER asli.
-    item_entities = extract_item_candidates(text)
-    entities.extend(item_entities)
-
-    # Urutkan entity berdasarkan posisi kemunculan di teks.
-    entities = sorted(entities, key=lambda item: item["start"])
-
-    return entities
+    return sorted(entities, key=lambda item: item["start"])
 
 
 def extract_item_candidates(text: str):
@@ -106,6 +103,7 @@ def extract_item_candidates(text: str):
         r"nota[:\s\-]+(.+?)(?=\s+\d|\s+rp|\s+untuk|\s+buat|$)",
         r"rekap[:\s\-]+(.+?)(?=\s+\d|\s+rp|\s+untuk|\s+buat|$)",
         r"billing[:\s\-]+(.+?)(?=\s+\d|\s+rp|\s+untuk|\s+buat|$)",
+        r"(?:^|\n)\s*[\-\*]\s*(?:(?:\w+\s+)?pesen\s+|\d+\s+)?([a-zA-Z\s]+?)(?=\s+(?:rp\.?|@)?\s*\d|\s+untuk|\s+buat|$)",
     ]
 
     for pattern in patterns:

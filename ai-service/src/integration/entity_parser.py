@@ -206,6 +206,7 @@ def parse_entities_to_transaction(text, entities, group_members=None):
             if local_multipliers:
                 digits = re.findall(r'\d+', local_multipliers[0]["text"])
                 if digits: quantity = int(digits[0])
+                
                 if "@" in text[max(0, local_prices[0]["start"] - 4):local_prices[0]["start"]] if local_prices else False:
                     item_amount *= quantity
                 if local_multipliers[0]["start"] < item_start and local_multipliers[0]["text"] not in extended_name:
@@ -235,7 +236,11 @@ def parse_entities_to_transaction(text, entities, group_members=None):
             elif has_assignment_keyword:
                 keyword_match = re.search(r'\b(untuk|buat|bagi|ke|bagian|jatah)\b', text[search_window_start:search_window_end], re.IGNORECASE)
                 keyword_global_idx = search_window_start + keyword_match.start()
-                item_members = unique_values([p["text"] for p in local_persons if p["start"] > keyword_global_idx])
+                
+                item_members = unique_values([
+                    p["text"] for p in local_persons 
+                    if p["start"] > keyword_global_idx and "\n" not in text[keyword_global_idx:p["start"]]
+                ])
                 if not item_members:
                     item_members = group_members if group_members else all_global_persons
             else:

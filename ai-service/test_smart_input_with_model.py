@@ -4,6 +4,16 @@ from src.integration.smart_input_service import analyze_smart_input
 GROUP_MEMBERS = ["Michael", "Dani", "Sinta"]
 
 TEST_SUITE = {
+    "Case 0: List": {
+        "text": "Ayu bayar semuanya:\n- Nasi goreng seafood 45k untuk Ayu Raka\n- 2 Mie tektek @30k buat Michael Dani\n- Sinta pesen Nasi gila 35k\n- Es teh manis 5k x5\nDiskon 20k, tax 15k",
+        "group_members": [
+            "Michael", 
+            "Dani", 
+            "Sinta", 
+            "Ayu", 
+            "Raka"
+        ]
+    },
     "Case 1: Multiplier & Quantity Prefix": {
         "text": "Michael bayar 3 burger total 150k untuk Michael Dani Sinta, terus 2 koka kola 30k buat Sinta",
         "group_members": GROUP_MEMBERS
