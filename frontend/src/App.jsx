@@ -1,49 +1,100 @@
-import { Routes, Route, useNavigate } from 'react-router-dom'
-import { useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-import DashboardPage from './pages/DashboardPage'
-import GroupPage from './pages/GroupPage'
-import GroupDetailPage from './pages/GroupDetailPage'
-import TransactionPage from './pages/TransactionPage'
-import ReportPage from './pages/ReportPage'
-import GroupNewPage from './pages/GroupNewPage'
-import ProfilePage from './pages/ProfilePage'
-import LandingPage from "./pages/LandingPage";
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import { ToastProvider } from './context/ToastContext'
+import ProtectedRoute from './components/ProtectedRoute'
+import Layout from './components/Layout'
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-)
+import LandingPage from './pages/LandingPage'
+import Login from './pages/auth/Login'
+import Register from './pages/auth/Register'
+import Dashboard from './pages/dashboard/Dashboard'
+import Grup from './pages/grup/Grup'
+import Transaksi from './pages/transaksi/Transaksi'
+import Analytics from './pages/analytics/Analytics'
+import Profil from './pages/profil/Profil'
+import BalancePage from './pages/balance/BalancePage'
+import Notifikasi from './pages/notifikasi/Notifikasi'
+import Riwayat from './pages/riwayat/Riwayat'
+import SimplifyDebt from './pages/simplify/SimplifyDebt'
+import SyaratKetentuan from './pages/legal/SyaratKetentuan'
+import KebijakanPrivasi from './pages/legal/KebijakanPrivasi'
+import ForgotPassword from './pages/auth/ForgotPassword'
+import ResetPassword from './pages/auth/ResetPassword'
+import PanduanAI from './pages/panduan/PanduanAI'
 
-function App() {
-    const navigate = useNavigate()
-
-    useEffect(() => {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-          localStorage.setItem('token', session.access_token)
-          localStorage.setItem('user', JSON.stringify(session.user))
-          navigate('/dashboard')
-        }
-      })
-      return () => subscription.unsubscribe()
-    }, [navigate])
-
+const App = () => {
   return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/dashboard" element={<DashboardPage />} />
-      <Route path="/group" element={<GroupPage />} />
-      <Route path="/group/:id" element={<GroupDetailPage />} />
-      <Route path="/transaction" element={<TransactionPage />} />
-      <Route path="/report" element={<ReportPage />} />
-      <Route path="/group/new" element={<GroupNewPage />} />
-      <Route path="/profile" element={<ProfilePage />} />
-    </Routes>
+    <AuthProvider>
+      <ToastProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          {/* Protected routes dengan Layout */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Layout><Dashboard /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/grup" element={
+            <ProtectedRoute>
+              <Layout><Grup /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/transaksi" element={
+            <ProtectedRoute>
+              <Layout><Transaksi /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/analytics" element={
+            <ProtectedRoute>
+              <Layout><Analytics /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/profil" element={
+            <ProtectedRoute>
+              <Layout><Profil /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/balance" element={
+            <ProtectedRoute>
+              <Layout><BalancePage /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/notifikasi" element={
+            <ProtectedRoute>
+              <Layout><Notifikasi /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/riwayat" element={
+            <ProtectedRoute>
+              <Layout><Riwayat /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/simplify" element={
+            <ProtectedRoute>
+              <Layout><SimplifyDebt /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/panduan-ai" element={
+            <ProtectedRoute>
+              <Layout><PanduanAI /></Layout>
+            </ProtectedRoute>
+          } />
+          {/* Legal — public */}
+          <Route path="/syarat-ketentuan"  element={<SyaratKetentuan />} />
+          <Route path="/kebijakan-privasi" element={<KebijakanPrivasi />} />
+
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+      </ToastProvider>
+    </AuthProvider>
   )
 }
 

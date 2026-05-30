@@ -1,80 +1,141 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+// eslint-disable-next-line no-unused-vars
+import { useState } from 'react'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
+import {
+  // eslint-disable-next-line no-unused-vars
+  LayoutDashboard, Users, Receipt, Wallet, GitMerge,
+  BarChart2, Bell, UserCircle, LogOut, Plus, Clock,
+} from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
-const navItems = [
-  { to: '/dashboard', label: 'Dashboard', icon: (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.2"/><rect x="9" y="1" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.2"/><rect x="1" y="9" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.2"/><rect x="9" y="9" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.2"/></svg>
-  )},
-  { to: '/transaction', label: 'Transaksi', icon: (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
-  )},
-  { to: '/group', label: 'Grup', icon: (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 13V6l6-3 6 3v7" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/></svg>
-  )},
-  { to: '/report', label: 'Laporan', icon: (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.2"/><path d="M5 7h6M5 9.5h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
-  )},
-  { to: '/profile', label: 'Profil', icon: (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" strokeWidth="1.2"/><path d="M2 13c0-3.333 2.667-6 6-6s6 2.667 6 6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
-  )},
+const C = {
+  navyDark: '#121358',
+  navy: '#232F72',
+  blue: '#2F578A',
+  teal: '#36ADA3',
+}
+
+const menus = [
+  { key: 'dashboard',  label: 'Dashboard',          icon: LayoutDashboard, path: '/dashboard'  },
+  { key: 'grup',       label: 'Grup',               icon: Users,           path: '/grup'       },
+  { key: 'transaksi',  label: 'Tambah Transaksi',   icon: Plus,            path: '/transaksi'  },
+  { key: 'riwayat',    label: 'Riwayat Transaksi',  icon: Clock,           path: '/riwayat'    },
+  { key: 'balance',    label: 'Balance/Utang',      icon: Wallet,          path: '/balance'    },
+  { key: 'simplify',   label: 'Simplify Debt',      icon: GitMerge,        path: '/simplify'   },
+  { key: 'analytics',  label: 'Insight & Analytics',icon: BarChart2,       path: '/analytics'  },
+  { key: 'notifikasi', label: 'Notifikasi',         icon: Bell,            path: '/notifikasi' },
+  { key: 'profil',     label: 'Profil',             icon: UserCircle,      path: '/profil'     },
 ]
 
-const Sidebar = () => {
+export default function Sidebar({ unreadCount = 0, isOpen, onClose }) {
+  const { logout, user } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+
+  const activeKey = menus.find((m) => location.pathname.startsWith(m.path))?.key ?? 'dashboard'
+
+  // Tutup sidebar saat navigasi (mobile)
+  const handleNavClick = () => {
+    if (onClose) onClose()
+  }
 
   return (
     <>
-      {/* Sidebar desktop */}
-      <aside className="hidden md:flex flex-col w-52 min-h-screen flex-shrink-0 px-3 py-5 gap-1"
-        style={{ background: 'linear-gradient(160deg, #0c3460 0%, #071a35 60%, #030d1a 100%)' }}>
-        <div className="flex items-center gap-2 mb-4 px-2">
-          <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.1)' }}>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="rgba(200,218,245,0.8)" strokeWidth="1.2"/><path d="M4 7h6M7 4v6" stroke="rgba(200,218,245,0.8)" strokeWidth="1.2" strokeLinecap="round"/></svg>
-          </div>
-          <span className="text-sm font-medium" style={{ color: '#c8daf5' }}>Talang.in</span>
+      {/* Overlay mobile */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      <aside
+        className={`fixed left-0 top-0 h-screen w-56 flex flex-col z-40 bg-white transition-transform duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        style={{ borderRight: '1px solid #e5e7eb' }}
+      >
+      <div className="flex items-center gap-3 px-4 py-3">
+  
+      {/* Logo T */}
+        <img
+          src="/logo.svg"
+          alt="Talang.in"
+          className="w-12 h-12 shrink-0 object-contain"
+        />
+        {/* Text */}
+        <div>
+          <p className="text-sm font-bold leading-tight" style={{ color: '#121358' }}>
+            Talang.in
+          </p>
+          <p className="text-xs" style={{ color: '#6b7280' }}>
+            Financial Manager
+          </p>
         </div>
+      </div>  
 
-
-
-        {navItems.map(item => (
-          <NavLink key={item.to} to={item.to}
-            className={({ isActive }) =>
-              `flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${
-                isActive
-                  ? 'text-white'
-                  : 'text-blue-200/60 hover:text-blue-100'
-              }`
-            }
-            style={({ isActive }) => isActive ? { background: 'rgba(255,255,255,0.1)' } : {}}
-          >
-            {item.icon}
-            {item.label}
-          </NavLink>
-        ))}
-
-        <button onClick={() => navigate('/')}
-          className="mt-auto flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-blue-200/60 hover:text-blue-100 transition-all">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3H3a1 1 0 00-1 1v8a1 1 0 001 1h3M10 11l3-3-3-3M13 8H6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          Keluar
-        </button>
-      </aside>
-
-      {/* Bottom navbar mobile */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex justify-around items-center h-14 border-t"
-        style={{ background: '#071a35', borderColor: 'rgba(255,255,255,0.1)' }}>
-        {navItems.map(item => (
-          <NavLink key={item.to} to={item.to}
-            className={({ isActive }) =>
-              `flex flex-col items-center gap-0.5 text-xs transition-all ${
-                isActive ? 'text-white' : 'text-blue-200/50'
-              }`
-            }>
-            {item.icon}
-            {item.label}
-          </NavLink>
-        ))}
+      {/* Nav */}
+      <nav className="flex-1 px-3 py-4 flex flex-col gap-0.5 overflow-y-auto">
+        {menus.map(({ key, label, icon: Icon, path }) => {
+          const isActive = activeKey === key
+          return (
+            <Link
+              key={key}
+              to={path}
+              onClick={handleNavClick}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all relative"
+              style={{
+                backgroundColor: isActive ? `${C.navy}12` : 'transparent',
+                color: isActive ? C.navy : '#6b7280',
+              }}
+            >
+              <Icon
+                size={16}
+                style={{ color: isActive ? C.navy : '#9ca3af' }}
+              />
+              <span className="flex-1">{label}</span>
+              {isActive && (
+                <div
+                  className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full"
+                  style={{ backgroundColor: C.navy }}
+                />
+              )}
+              {key === 'notifikasi' && unreadCount > 0 && (
+                <span
+                  className="text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center"
+                  style={{ background: C.teal, color: 'white', fontSize: '10px' }}
+                >
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </Link>
+          )
+        })}
       </nav>
+
+      {/* User + Logout */}
+      <div className="px-4 py-4 border-t border-gray-100">
+        <div className="flex items-center gap-3 mb-3">
+          <div
+            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
+            style={{ backgroundColor: C.navy }}
+          >
+            {(user?.full_name ?? user?.name ?? user?.user_metadata?.full_name ?? user?.email)?.[0]?.toUpperCase() ?? 'U'}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold truncate" style={{ color: C.navyDark }}>
+              {user?.full_name ?? user?.user_metadata?.full_name ?? user?.name ?? 'Pengguna'}
+            </p>
+            <p className="text-xs truncate text-gray-400">{user?.email ?? ''}</p>
+          </div>
+        </div>
+        <button
+          onClick={() => { logout(); navigate('/login') }}
+          className="w-full flex items-center gap-2 text-xs py-2 px-3 rounded-lg transition hover:bg-red-50 text-red-500"
+        >
+          <LogOut size={13} />
+          <span>Logout</span>
+        </button>
+      </div>
+      </aside>
     </>
   )
 }
-
-export default Sidebar
