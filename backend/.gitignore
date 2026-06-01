@@ -1,5 +1,4 @@
 .env
-Backend/.env
-backend/node_modules/
-frontend/node_modules/
-Backend/backend.zip
+node_modules/
+backend.zip
+supabase/.temp/
