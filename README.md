@@ -113,7 +113,7 @@ Cukup **3 langkah** untuk mulai:
 
 **Udah penasaran? Langsung cobain gratis! 👇**
 
-[![Mulai Sekarang](https://talang-in-bay.vercel.app/register)]
+(https://talang-in-bay.vercel.app/register)
 
 ---
 
