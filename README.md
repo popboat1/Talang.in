@@ -101,8 +101,11 @@ Cukup **3 langkah** untuk mulai:
 | 📈 **Insight & Analytics** | Grafik pengeluaran & health score keuangan grupmu |
 | 🔔 **Notifikasi** | Pengingat tagihan yang belum dilunasi |
 
-![AI Smart Input](./public/ai-input.png)
-![Manual Input](./public/manual-input.png)
+<div align="center">
+  <img src="./public/ai-input.png" width="45%" alt="AI Smart Input" />
+  &nbsp;&nbsp;
+  <img src="./public/manual-input.png" width="45%" alt="Manual Input" />
+</div>
 
 ---
 
