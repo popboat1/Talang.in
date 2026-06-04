@@ -1,3 +1,22 @@
+# 28k Dataset Evaluation & Training Metrics
+
+This section highlights the final performance and training progression of the model on the 28k dataset. 
+
+### Final Evaluation Results
+The model achieved strong performance on the test dataset:
+- **Token Accuracy:** 99.61%
+- **Precision:** 98.77%
+- **Recall:** 98.65%
+- **Entity F1 Score:** 98.71%
+- **Loss:** 0.7626
+
+### Training Metrics Visualization
+The following charts illustrate the model's metrics across training steps, capturing both training/validation loss and key validation metrics:
+
+![Training Metrics](outputs/training_metrics.png)
+
+---
+
 # Usage Guide
 ## Build Dataset
 ```python
