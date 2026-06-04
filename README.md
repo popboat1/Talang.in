@@ -116,6 +116,27 @@ Cukup **3 langkah** untuk mulai:
 (https://talang-in-bay.vercel.app/register)
 
 ---
+---
+
+## 📊 Data Science Dashboard
+
+Talang.in juga dilengkapi dengan **Dashboard Data Science** berbasis Streamlit yang memberikan analisis mendalam tentang pola pengeluaran, tren keuangan, dan insight berbasis data dari aktivitas grupmu.
+
+> 🔬 **[talangin-data-science.streamlit.app](https://talangin-data-science.streamlit.app/)**
+
+### Apa yang bisa kamu lihat di sini?
+
+| Fitur | Keterangan |
+|---|---|
+| 📈 **Tren Pengeluaran** | Visualisasi pengeluaran dari waktu ke waktu |
+| 🏷️ **Kategori Terbesar** | Lihat pos pengeluaran terbesar grupmu |
+| 👤 **Analisis per Member** | Siapa yang paling sering bayar? Siapa yang paling banyak utang? |
+| 🔮 **Prediksi Keuangan** | Estimasi pengeluaran bulan depan berbasis historis |
+| 💡 **Health Score** | Skor kesehatan keuangan grup berdasarkan pola transaksi |
+
+Dashboard ini dibangun menggunakan **Python + Streamlit** dan terhubung langsung dengan data transaksi Talang.in untuk memberikan insight yang lebih kaya dan interaktif.
+
+---
 
 *Talang.in — karena patungan harusnya nggak ribet.*
 
