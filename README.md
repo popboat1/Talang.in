@@ -118,25 +118,33 @@ Cukup **3 langkah** untuk mulai:
 ---
 ---
 
-## 📊 Data Science Dashboard
-
-Talang.in juga dilengkapi dengan **Dashboard Data Science** berbasis Streamlit yang memberikan analisis mendalam tentang pola pengeluaran, tren keuangan, dan insight berbasis data dari aktivitas grupmu.
-
-> 🔬 **[talangin-data-science.streamlit.app](https://talangin-data-science.streamlit.app/)**
-
-### Apa yang bisa kamu lihat di sini?
-
-| Fitur | Keterangan |
-|---|---|
-| 📈 **Tren Pengeluaran** | Visualisasi pengeluaran dari waktu ke waktu |
-| 🏷️ **Kategori Terbesar** | Lihat pos pengeluaran terbesar grupmu |
-| 👤 **Analisis per Member** | Siapa yang paling sering bayar? Siapa yang paling banyak utang? |
-| 🔮 **Prediksi Keuangan** | Estimasi pengeluaran bulan depan berbasis historis |
-| 💡 **Health Score** | Skor kesehatan keuangan grup berdasarkan pola transaksi |
-
-Dashboard ini dibangun menggunakan **Python + Streamlit** dan terhubung langsung dengan data transaksi Talang.in untuk memberikan insight yang lebih kaya dan interaktif.
-
 ---
+
+## 🔬 Data Science Dashboard
+
+Talang.in dilengkapi **Data Science Dashboard v4.0** berbasis Streamlit yang mendokumentasikan seluruh proses sains data di balik fitur **AI Smart Transaction Input** — mulai dari persiapan data hingga evaluasi model NLP.
+
+> 🧪 **[talangin-data-science.streamlit.app](https://talangin-data-science.streamlit.app/)**
+
+Dashboard ini menjelaskan bagaimana AI Talang.in bisa memahami kalimat seperti:
+
+> *"Geprek 75 ribu buat Risna, Dinda, sama Budi"*
+> → **PERSON:** Risna, Dinda, Budi | **ITEM:** Geprek | **PRICE:** 75k
+
+### 📋 Isi Dashboard
+
+| Halaman | Keterangan |
+|---|---|
+| 🟢 **Overview** | Penjelasan project Talang.in, tujuan dashboard, dan alur data |
+| 📦 **Data Source** | Asal-usul dan struktur dataset yang digunakan |
+| 🧹 **Data Cleaning** | Proses pembersihan dan normalisasi data transaksi |
+| 📊 **EDA Data Utama** | Exploratory Data Analysis — distribusi, pola, dan statistik data |
+| 💡 **Insight Data** | Temuan menarik dari analisis data transaksi |
+| 🏷️ **NER Dataset** | Dataset Named Entity Recognition untuk melatih model AI |
+| 🧪 **A/B Testing** | Pengujian performa model AI dalam mengenali entitas transaksi |
+| ✅ **Kesimpulan** | Ringkasan hasil dan rekomendasi pengembangan ke depan |
+
+Dashboard ini dibangun dengan **Python + Streamlit** sebagai dokumentasi ilmiah dan teknis dari pipeline NLP yang menggerakkan fitur AI Talang.in.
 
 *Talang.in — karena patungan harusnya nggak ribet.*
 
