@@ -109,6 +109,88 @@ Cukup **3 langkah** untuk mulai:
 
 ---
 
+## 🧰 Tech Stack
+ 
+| Layer | Teknologi |
+|---|---|
+| **Frontend** | React, Vite, Tailwind CSS |
+| **Backend** | Node.js, Express.js |
+| **Database** | Supabase (PostgreSQL) |
+| **AI / NLP** | Custom NER Model (Python) |
+| **Deployment** | Vercel (frontend) + Railway (backend) |
+| **Data Science** | Python, Streamlit |
+ 
+---
+ 
+## 🛠️ Installation & Setup
+ 
+### Prerequisites
+ 
+Pastikan kamu sudah menginstall:
+ 
+- [Node.js](https://nodejs.org/) v18+
+- npm atau yarn
+- [Git](https://git-scm.com/)
+### 1. Clone Repository
+ 
+```bash
+git clone https://github.com/<username>/talang-in.git
+cd talang-in
+```
+ 
+### 2. Setup Frontend
+ 
+```bash
+cd frontend
+npm install
+cp .env.example .env
+```
+ 
+Edit file `.env` dan isi variabel yang dibutuhkan (lihat [Environment Variables](#️-environment-variables)), lalu jalankan:
+ 
+```bash
+npm run dev
+```
+ 
+Frontend akan berjalan di `http://localhost:5173`
+ 
+### 3. Setup Backend
+ 
+```bash
+cd ../backend
+npm install
+cp .env.example .env
+```
+ 
+Edit file `.env` dan isi variabel yang dibutuhkan, lalu jalankan:
+ 
+```bash
+npm run dev
+```
+ 
+Backend akan berjalan di `http://localhost:3000`
+ 
+---
+ 
+## ⚙️ Environment Variables
+ 
+### Frontend (`frontend/.env`)
+ 
+| Variable | Keterangan | Contoh |
+|---|---|---|
+| `VITE_API_BASE_URL` | URL backend API | `http://localhost:3000` |
+ 
+### Backend (`backend/.env`)
+ 
+| Variable | Keterangan | Contoh |
+|---|---|---|
+| `SUPABASE_URL` | URL project Supabase | `https://xxxx.supabase.co` |
+| `SUPABASE_KEY` | API Key Supabase (anon/service) | `eyJhbGci...` |
+| `FRONTEND_URL` | URL frontend untuk konfigurasi CORS | `http://localhost:5173` |
+| `PORT` | Port yang digunakan backend | `3000` |
+ 
+> 💡 Untuk mendapatkan `SUPABASE_URL` dan `SUPABASE_KEY`, buat project baru di [supabase.com](https://supabase.com) dan ambil dari menu **Settings → API**.
+
 <div align="center">
 
 **Udah penasaran? Langsung cobain gratis! 👇**
