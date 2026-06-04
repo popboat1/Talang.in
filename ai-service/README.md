@@ -1,4 +1,4 @@
-# 28k Dataset Evaluation & Training Metrics
+# Dataset Evaluation & Training Metrics
 
 This section highlights the final performance and training progression of the model on the 28k dataset. 
 
